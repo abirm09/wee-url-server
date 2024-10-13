@@ -10,6 +10,7 @@ const envVarsZodSchema = z.object({
     .string()
     .default("5000")
     .refine((val) => Number(val)),
+  CLIENT_SIDE_URLS: z.string(),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -17,4 +18,5 @@ const envVars = envVarsZodSchema.parse(process.env);
 export default {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
+  client_side_urls: envVars.CLIENT_SIDE_URLS,
 };

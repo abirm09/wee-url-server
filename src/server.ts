@@ -1,7 +1,7 @@
 import { Server } from "http";
 import app from "./app";
-import config from "./app/config";
-import { logger } from "./app/utilities/logger/logger";
+import config from "./config";
+import { logger } from "./utilities/logger/logger";
 
 const bootstrap = async () => {
   const server: Server = app.listen(config.port, () => {
