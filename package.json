@@ -1,0 +1,23 @@
+{
+  "name": "wee_url_server",
+  "version": "0.0.1",
+  "description": "A Link Shortener app",
+  "main": "./dist/server.js",
+  "author": {
+    "name": "MD Abir Mahmud",
+    "email": "abirmahmud5665@gmail.com",
+    "url": "https://www.abirmahmud.top"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon",
+    "start": "node ./dist/server.js",
+    "build": "npx tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
