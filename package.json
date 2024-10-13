@@ -3,11 +3,10 @@
   "version": "0.0.1",
   "description": "A Link Shortener app",
   "main": "./dist/server.js",
-  "author": {
-    "name": "MD Abir Mahmud",
-    "email": "abirmahmud5665@gmail.com",
-    "url": "https://www.abirmahmud.top"
+  "repository": {
+    "url": "https://github.com/abirm09/WeeURL-server"
   },
+  "author": "MD Abir Mahmud <abirmahmud5665@gmail.com> (https://www.abirmahmud.top)",
   "license": "MIT",
   "scripts": {
     "dev": "nodemon",
