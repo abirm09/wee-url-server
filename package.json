@@ -12,12 +12,25 @@
   "scripts": {
     "dev": "nodemon",
     "start": "node ./dist/server.js",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "prepare": "node .husky/install.mjs"
+  },
+  "lint-staged": {
+    "*.{ts,json,md}": "prettier --write",
+    "*.ts": "eslint --fix"
   },
   "devDependencies": {
+    "@eslint/js": "^9.12.0",
     "@types/node": "^22.7.5",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.11.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "nodemon": "^3.1.7",
+    "prettier": "3.3.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.8.1"
   }
 }
