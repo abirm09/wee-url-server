@@ -1,17 +1,18 @@
-/* eslint-disable no-console */
 import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
+import { logger } from "./app/utilities/logger/logger";
 
 const bootstrap = async () => {
   const server: Server = app.listen(config.port, () => {
-    console.log(`Server is running at http://localhost:${config.port}`);
+    logger.console.info(`===${config.env}===`);
+    logger.console.info(`Server is running at http://localhost:${config.port}`);
   });
 
   const exitHandler = () => {
     if (server) {
       server.close(() => {
-        console.log(`Server closed`);
+        logger.console.info(`Server closed`);
         process.exit(1);
       });
     } else {
@@ -19,15 +20,17 @@ const bootstrap = async () => {
     }
   };
   const unexpectedErrorHandler = (error: unknown) => {
-    console.log(error);
+    logger.console.info(error);
     exitHandler();
   };
 
+  const unhandledRejection = (error: unknown) => unexpectedErrorHandler(error);
+
   process.on("uncaughtException", unexpectedErrorHandler);
-  process.on("unhandledRejection", unexpectedErrorHandler);
+  process.on("unhandledRejection", unhandledRejection);
 
   process.on("SIGTERM", () => {
-    console.log("SIGTERM received");
+    logger.console.info("SIGTERM received");
     if (server) {
       server.close();
     }
