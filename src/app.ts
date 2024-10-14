@@ -3,7 +3,9 @@ import cors, { CorsOptions } from "cors";
 import express, { Application } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
+import router from "./app/routes";
 import config from "./config";
 
 // App Instance
@@ -29,9 +31,16 @@ if (config.env === "development") {
   app.use(morgan("dev"));
 }
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   res.status(301).redirect("https://weeurl.abirmahmud.top");
 });
+
+// API routes
+
+app.use("/api/v1", router);
+
+// Global error handler
+app.use(globalErrorHandler);
 
 // handle not found route
 app.use(notFoundHandler);
