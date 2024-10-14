@@ -32,6 +32,7 @@ const createIntoDB = async (payload: User) => {
     const userData: User = {
       ...payload,
       userId,
+      status: "active",
       password: hashedPassword,
       isEmailVerified: false,
       role: "customer",
