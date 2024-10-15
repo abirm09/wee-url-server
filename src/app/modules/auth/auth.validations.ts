@@ -9,6 +9,13 @@ const login = z.object({
   }),
 });
 
+const accessToken = z.object({
+  cookies: z.object({
+    we_url_t: z.string({ required_error: "Invalid request" }),
+  }),
+});
+
 export const AuthValidations = {
   login,
+  accessToken,
 };

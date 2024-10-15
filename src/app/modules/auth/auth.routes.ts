@@ -15,4 +15,10 @@ route.post(
   AuthController.login
 );
 
+route.get(
+  "/access-token",
+  validateRequest(AuthValidations.accessToken),
+  AuthController.accessToken
+);
+
 export const AuthRoutes = route;

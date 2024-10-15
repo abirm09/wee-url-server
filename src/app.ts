@@ -1,4 +1,5 @@
 import compression from "compression";
+import cookieParser from "cookie-parser";
 import cors, { CorsOptions } from "cors";
 import express, { Application } from "express";
 import helmet from "helmet";
@@ -25,6 +26,7 @@ if (config.env === "production") {
 
 // Middlewares
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(helmet());
 app.use(express.json());
 app.use(compression());

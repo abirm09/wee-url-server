@@ -29,6 +29,20 @@ const login = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const accessToken = catchAsync(async (req: Request, res: Response) => {
+  const refreshToken = req.cookies["we_url_t"];
+
+  const token = await AuthService.accessToken(refreshToken, res);
+
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Access token retrieved successfully",
+    data: { token },
+  });
+});
+
 export const AuthController = {
   login,
+  accessToken,
 };
