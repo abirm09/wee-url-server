@@ -13,6 +13,22 @@ import TUserAgent from "../../../types/userAgent";
 import isValidUser from "../../helper/isValidUser";
 const prisma = new PrismaClient();
 
+/**
+ * The login function validates user credentials, generates access and refresh tokens, and logs in the
+ * user's device information.
+ * @param {User} payload - The `payload` parameter in the `login` function represents the user data
+ * that is being passed to the function for authentication. It typically includes the user's email and
+ * password.
+ * @param {TUserAgent} [userAgent] - The `userAgent` parameter in the `login` function is used to pass
+ * information about the user's device and browser. It is an optional parameter of type `TUserAgent`.
+ * This parameter can contain details such as the operating system, browser, device type, etc., of the
+ * user who is
+ * @param {string} [userIp] - The `userIp` parameter in the `login` function represents the IP address
+ * of the user who is attempting to log in. This parameter is optional and can be used to track the IP
+ * address of the user for security or logging purposes. It allows you to capture the IP address from
+ * which the login
+ * @returns The `login` function is returning an object containing `accessToken` and `refreshToken`.
+ */
 const login = async (
   payload: User,
   userAgent?: TUserAgent,
