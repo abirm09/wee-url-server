@@ -25,6 +25,14 @@ const envVarsZodSchema = z.object({
   ACCESS_TOKEN_EXPIRES_IN: z.string({
     required_error: "ACCESS_TOKEN_EXPIRES_IN is required",
   }),
+  CLIENT_SIDE_DOMAIN: z.string({
+    required_error: "CLIENT_SIDE_DOMAIN is required",
+  }),
+  REFRESH_TOKEN_EXPIRES: z
+    .string({
+      required_error: "REFRESH_TOKEN_EXPIRES is required",
+    })
+    .refine((val) => Number(val)),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -37,4 +45,6 @@ export default {
   access_token_secret: envVars.ACCESS_TOKEN_SECRET,
   refresh_token_expires_in: envVars.REFRESH_TOKEN_EXPIRES_IN,
   access_token_expires_in: envVars.ACCESS_TOKEN_EXPIRES_IN,
+  client_side_domain: envVars.CLIENT_SIDE_DOMAIN,
+  refresh_token_expires: envVars.REFRESH_TOKEN_EXPIRES,
 };

@@ -5,6 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
+import userAgent from "./app/middlewares/userAgent";
 import router from "./app/routes";
 import config from "./config";
 
@@ -31,7 +32,7 @@ if (config.env === "development") {
   app.use(morgan("dev"));
 }
 
-app.get("/", async (req, res) => {
+app.get("/", userAgent, (req, res) => {
   res.status(301).redirect("https://weeurl.abirmahmud.top");
 });
 

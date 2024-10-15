@@ -9,24 +9,27 @@ const bootstrap = async () => {
     logger.console.info(`Server is running at http://localhost:${config.port}`);
   });
 
-  const exitHandler = () => {
+  const exitHandler = (error: unknown, errorType: string) => {
     if (server) {
       server.close(() => {
-        logger.console.info(`Server closed`);
+        logger.console.info(errorType, error);
         process.exit(1);
       });
     } else {
       process.exit(1);
     }
   };
-  const unexpectedErrorHandler = (error: unknown) => {
+  const unexpectedErrorHandler = (error: unknown, errorType: string) => {
     logger.console.info(error);
-    exitHandler();
+    exitHandler(error, errorType);
   };
+  const uncaughtException = (error: unknown) =>
+    unexpectedErrorHandler(error, "Uncaught exception");
 
-  const unhandledRejection = (error: unknown) => unexpectedErrorHandler(error);
+  const unhandledRejection = (error: unknown) =>
+    unexpectedErrorHandler(error, "Unhandled rejection");
 
-  process.on("uncaughtException", unexpectedErrorHandler);
+  process.on("uncaughtException", uncaughtException);
   process.on("unhandledRejection", unhandledRejection);
 
   process.on("SIGTERM", () => {
