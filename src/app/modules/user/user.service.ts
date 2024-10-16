@@ -1,10 +1,9 @@
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
+import { prisma } from "../../../app";
 import ApiError from "../../../errors/ApiError";
 import { UserUtil } from "./user.util";
-
-const prisma = new PrismaClient();
 
 /**
  * The function `createIntoDB` asynchronously creates a new user in a database with hashed password and

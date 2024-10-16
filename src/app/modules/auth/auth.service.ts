@@ -1,9 +1,10 @@
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Response } from "express";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
+import { prisma } from "../../../app";
 import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
@@ -11,7 +12,6 @@ import setCookie from "../../../shared/setCookie";
 import { TJWTPayload } from "../../../types/jwt/payload";
 import TUserAgent from "../../../types/userAgent";
 import isValidUser from "../../helper/isValidUser";
-const prisma = new PrismaClient();
 
 /**
  * The login function validates user credentials, generates access and refresh tokens, and logs in the
