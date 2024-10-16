@@ -50,7 +50,24 @@ const createIntoDB = async (payload: User) => {
 };
 
 const profileFromDB = async (id: string) => {
-  const result = await prisma.user.findUnique({ where: { id } });
+  const result = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      fullName: true,
+      userId: true,
+      email: true,
+      isEmailVerified: true,
+      needsPasswordChange: true,
+      role: true,
+      status: true,
+      profile: {
+        select: {
+          picture: true,
+        },
+      },
+    },
+  });
   return result;
 };
 
