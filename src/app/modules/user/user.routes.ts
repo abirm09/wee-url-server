@@ -10,7 +10,9 @@ route.post("/", validateRequest(UserValidations.create), UserController.create);
 
 route.get(
   "/profile",
-  authGuard({ requiredRoles: ["superAdmin", "admin", "customer"] }),
+  authGuard({
+    requiredRoles: ["superAdmin", "admin", "customer"],
+  }),
   UserController.profile
 );
 
