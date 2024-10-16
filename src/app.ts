@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors, { CorsOptions } from "cors";
@@ -33,6 +34,8 @@ app.use(compression());
 if (config.env === "development") {
   app.use(morgan("dev"));
 }
+
+export const prisma = new PrismaClient();
 
 app.get("/", userAgent, (req, res) => {
   res.status(301).redirect("https://weeurl.abirmahmud.top");

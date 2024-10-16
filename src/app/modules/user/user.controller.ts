@@ -16,6 +16,18 @@ const create = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const profile = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.profileFromDB(req.user.userId);
+
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Profile data retrieved successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   create,
+  profile,
 };

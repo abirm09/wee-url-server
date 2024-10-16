@@ -4,5 +4,5 @@ export type TJWTPayload = {
   userId: string;
   role: string;
   tokenId: string;
-  user?: User;
+  user?: Partial<User> | null;
 };

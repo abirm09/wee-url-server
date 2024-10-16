@@ -35,13 +35,17 @@ const login = async (
   userIp?: string
 ) => {
   return await prisma.$transaction(async (tx) => {
-    const user = await isValidUser(tx, payload.email, {
-      email: true,
-      password: true,
-      id: true,
-      userId: true,
-      role: true,
-    });
+    const user = await isValidUser(
+      tx,
+      { email: payload.email },
+      {
+        email: true,
+        password: true,
+        id: true,
+        userId: true,
+        role: true,
+      }
+    );
 
     const isPasswordMatch = await bcrypt.compare(
       payload.password,

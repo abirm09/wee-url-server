@@ -50,6 +50,12 @@ const createIntoDB = async (payload: User) => {
   });
 };
 
+const profileFromDB = async (id: string) => {
+  const result = await prisma.user.findUnique({ where: { id } });
+  return result;
+};
+
 export const UserService = {
   createIntoDB,
+  profileFromDB,
 };

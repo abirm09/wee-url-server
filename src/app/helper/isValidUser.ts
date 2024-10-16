@@ -15,11 +15,12 @@ const isValidUser = async (
         | "$use"
         | "$extends"
       >,
-  email: string,
+  query: { email?: string; id?: string },
   select: Prisma.UserSelect<DefaultArgs> | null | undefined
 ) => {
+  const { email, id } = query;
   const user = await client.user.findUnique({
-    where: { email },
+    where: { email, id },
     select: { ...select, status: true },
   });
   if (!user)
