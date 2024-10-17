@@ -12,7 +12,6 @@ import setCookie from "../../../shared/setCookie";
 import { TJWTPayload } from "../../../types/jwt/payload";
 import TUserAgent from "../../../types/userAgent";
 import isValidUser from "../../helper/isValidUser";
-
 /**
  * The login function validates user credentials, generates access and refresh tokens, and logs in the
  * user's device information.
@@ -148,7 +147,18 @@ const accessToken = async (refreshToken: string, res: Response) => {
   }
 };
 
+// const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
+//   await prisma.emailVerificationOTP.create({ data: {} });
+//   const otp = otpGenerator.generate(6, {
+//     upperCaseAlphabets: false,
+//     lowerCaseAlphabets: false,
+//     specialChars: false,
+//   });
+//   console.log(otp);
+// };
+
 export const AuthService = {
   login,
   accessToken,
+  // createVerifyEmailRequestIntoDB,
 };

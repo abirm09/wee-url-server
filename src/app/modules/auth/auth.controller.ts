@@ -42,7 +42,20 @@ const accessToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// const createVerifyEmailRequest = catchAsync(
+//   async (req: Request, res: Response) => {
+//     await AuthService.createVerifyEmailRequestIntoDB(req.user);
+
+//     successResponse(res, {
+//       statusCode: httpStatus.CREATED,
+//       success: true,
+//       message: "Email verification email sended successfully",
+//     });
+//   }
+// );
+
 export const AuthController = {
   login,
   accessToken,
+  // createVerifyEmailRequest,
 };

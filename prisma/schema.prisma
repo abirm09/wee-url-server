@@ -63,6 +63,8 @@ model LoggedInDevice {
   city       String?
   country    String?
   lastUsedAt DateTime? @default(now())
+  isBlocked  Boolean   @default(false)
+  blockedAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -71,13 +73,11 @@ model LoggedInDevice {
   @@map("logged_in_devices")
 }
 
-model BlockedToken {
-  id      String @id @default(uuid())
-  tokenId String
+model EmailVerificationOTP {
+  id     String @id @default(uuid())
+  userId String
+  otp    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  expiresAt DateTime
-
-  @@map("blocked_tokens")
 }

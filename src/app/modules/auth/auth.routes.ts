@@ -21,4 +21,10 @@ route.get(
   AuthController.accessToken
 );
 
+// route.post(
+//   "/email-verify-request",
+//   validateRequest(AuthValidations.accessToken),
+//   AuthController.createVerifyEmailRequest
+// );
+
 export const AuthRoutes = route;

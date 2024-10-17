@@ -5,7 +5,7 @@ import TUserAgent from "./userAgent";
 declare global {
   namespace Express {
     interface Request {
-      user?: TJWTPayload;
+      user: TJWTPayload;
       userAgent?: TUserAgent;
       userIp?: string;
     }
