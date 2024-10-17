@@ -54,7 +54,8 @@ const authGuard =
           isEmailVerified: true,
           loggedInDevices: {
             select: {
-              lastUsedAt: true,
+              tokenId: true,
+              isBlocked: true,
             },
           },
         },
@@ -66,6 +67,13 @@ const authGuard =
       // Check if the user has been banned
       if (user.status === "banned")
         throw new ApiError(httpStatus.BAD_REQUEST, "You have been banned!");
+
+      // Check token is blocked
+      const findLoggedInDeviceData = user?.loggedInDevices?.find(
+        (item) => item?.tokenId === payload?.tokenId
+      );
+      if (findLoggedInDeviceData?.isBlocked)
+        throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorize request");
 
       // Check if user verified their email or not
       if (validateIsEmailVerified)
