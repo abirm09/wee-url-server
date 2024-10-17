@@ -118,11 +118,16 @@ const accessToken = async (refreshToken: string, res: Response) => {
       // Check if the device information exists for the given tokenId
       const deviceInfo = await tx.loggedInDevice.findUnique({
         where: { tokenId },
+        select: {
+          id: true,
+          isBlocked: true,
+        },
       });
 
-      if (!deviceInfo) {
+      if (!deviceInfo) throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
+
+      if (deviceInfo.isBlocked)
         throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
-      }
 
       await tx.loggedInDevice.update({
         where: { id: deviceInfo.id },
