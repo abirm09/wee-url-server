@@ -156,6 +156,18 @@ const accessToken = async (refreshToken: string, res: Response) => {
   }
 };
 
+/**
+ * The function `createVerifyEmailRequestIntoDB` handles the creation of email verification requests in
+ * a database, including checking for recent requests and generating OTPs.
+ * @param {TJWTPayload} payload - The `createVerifyEmailRequestIntoDB` function takes in a `payload`
+ * parameter of type `TJWTPayload`. This payload likely contains information needed to verify a user's
+ * email address, such as the user's ID.
+ * @returns The `createVerifyEmailRequestIntoDB` function is returning the result of the transaction
+ * operation performed using Prisma. This operation involves fetching user data based on the provided
+ * payload, checking and handling email verification OTPs, updating the validity of existing OTPs,
+ * generating a new OTP, and creating a new email verification OTP record in the database. The function
+ * does not explicitly return a value, but it implicitly
+ */
 const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
   return prisma.$transaction(async (tx) => {
     const user = await tx.user.findUnique({
@@ -219,8 +231,61 @@ const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
   });
 };
 
+const verifyOtpFromDB = async (otp: string, user: TJWTPayload) => {
+  return prisma.$transaction(async (tx) => {
+    const userData = await tx.user.findUnique({
+      where: { id: user.userId },
+      select: {
+        emailVerificationOTPs: {
+          select: {
+            id: true,
+            isValid: true,
+            otp: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    const findOtpData = userData?.emailVerificationOTPs?.find(
+      (item) => item.otp === otp
+    );
+
+    // Check if OTP is found
+    if (!findOtpData) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "OTP did not match");
+    }
+
+    // Check if OTP is invalid
+    if (!findOtpData.isValid) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Invalid OTP");
+    }
+
+    // Check if OTP creation time is within the last 10 minutes
+    const otpCreationTime = new Date(findOtpData.createdAt);
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+    if (otpCreationTime < tenMinutesAgo) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "OTP has expired");
+    }
+
+    await tx.emailVerificationOTP.deleteMany({
+      where: { userId: user.userId },
+    });
+
+    await tx.user.update({
+      where: { id: user.userId },
+      data: {
+        isEmailVerified: true,
+        emailVerifiedAt: new Date(),
+      },
+    });
+  });
+};
+
 export const AuthService = {
   login,
   accessToken,
   createVerifyEmailRequestIntoDB,
+  verifyOtpFromDB,
 };

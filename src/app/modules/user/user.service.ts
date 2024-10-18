@@ -51,6 +51,18 @@ const createIntoDB = async (payload: User) => {
   });
 };
 
+/**
+ * The function `profileFromDB` retrieves a user's profile information from a database using Prisma ORM
+ * in TypeScript.
+ * @param {string} id - The `id` parameter is a string that represents the unique identifier of a user
+ * in the database. The `profileFromDB` function is an asynchronous function that retrieves a user's
+ * profile information from the database based on the provided `id`. The function uses Prisma to query
+ * the database and fetch specific
+ * @returns The `profileFromDB` function is returning a user profile object from the database based on
+ * the provided `id`. The object includes the user's `id`, `fullName`, `userId`, `email`,
+ * `isEmailVerified`, `needsPasswordChange`, `role`, `status`, and the `picture` from the user's
+ * profile.
+ */
 const profileFromDB = async (id: string) => {
   const result = await prisma.user.findUnique({
     where: { id },
@@ -73,6 +85,21 @@ const profileFromDB = async (id: string) => {
   return result;
 };
 
+/**
+ * The function `updateUserIntoDB` updates user and profile data in the database based on the provided
+ * user data, profile data, and user information.
+ * @param {User} userUpdatedData - The `userUpdatedData` parameter contains the updated information of
+ * a user, such as their name, email, or any other user-related data that needs to be updated in the
+ * database.
+ * @param {Profile} profile - Profile data to be updated for the user, including fields like picture,
+ * bio, and social media links.
+ * @param {TJWTPayload} user - The `user` parameter in the `updateUserIntoDB` function represents the
+ * current user making the update request. It contains information about the user, such as their user
+ * ID and email address. This information is used to identify the user whose data is being updated in
+ * the database.
+ * @returns The `updateUserIntoDB` function is returning a Promise that resolves when the transaction
+ * is completed.
+ */
 const updateUserIntoDB = async (
   userUpdatedData: User,
   profile: Profile,
@@ -81,17 +108,6 @@ const updateUserIntoDB = async (
   return prisma.$transaction(async (tx) => {
     const userId = user.userId;
     const currentEmail = user.user?.email;
-
-    const previousProfileData = await prisma.profile.findUnique({
-      where: { userId },
-      select: {
-        picPublicId: true,
-      },
-    });
-
-    if (previousProfileData?.picPublicId) {
-      await cloudinary.api.delete_resources([previousProfileData?.picPublicId]);
-    }
 
     // Prepare modified user data
     const modifiedUserData = {
@@ -111,10 +127,25 @@ const updateUserIntoDB = async (
 
     // Update profile data if there are any changes
     if (Object.keys(profile).length) {
+      if (profile.picture) {
+        const previousProfileData = await tx.profile.findUnique({
+          where: { userId },
+          select: {
+            picPublicId: true,
+          },
+        });
+
+        if (previousProfileData?.picPublicId) {
+          await cloudinary.api.delete_resources([
+            previousProfileData?.picPublicId,
+          ]);
+        }
+      }
+
       await tx.profile.update({
         where: { userId: userId },
         data: {
-          ...profile, // Spread the profile fields to update
+          ...profile,
         },
       });
     }

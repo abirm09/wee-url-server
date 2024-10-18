@@ -51,8 +51,18 @@ const createVerifyEmailRequest = catchAsync(
   }
 );
 
+const verifyOtp = catchAsync(async (req: Request, res: Response) => {
+  await AuthService.verifyOtpFromDB(req.body.otp, req.user);
+
+  successResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Email verification successful",
+  });
+});
+
 export const AuthController = {
   login,
   accessToken,
   createVerifyEmailRequest,
+  verifyOtp,
 };

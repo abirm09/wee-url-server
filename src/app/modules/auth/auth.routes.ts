@@ -25,11 +25,19 @@ route.get(
 route.post(
   "/email-verify-request",
   authGuard({
-    requiredRoles: ["superAdmin", "admin", "customer"],
+    requiredRoles: ["admin", "customer"],
     validateIsEmailVerified: false,
   }),
-  validateRequest(AuthValidations.accessToken),
   AuthController.createVerifyEmailRequest
+);
+
+route.post(
+  "/verify-otp",
+  authGuard({
+    requiredRoles: ["admin", "customer"],
+    validateIsEmailVerified: false,
+  }),
+  AuthController.verifyOtp
 );
 
 export const AuthRoutes = route;
