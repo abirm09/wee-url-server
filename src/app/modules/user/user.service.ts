@@ -1,8 +1,10 @@
-import { User } from "@prisma/client";
+import { Profile, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
 import { prisma } from "../../../app";
+import cloudinary from "../../../config/cloudinary";
 import ApiError from "../../../errors/ApiError";
+import { TJWTPayload } from "../../../types/jwt/payload";
 import { UserUtil } from "./user.util";
 
 /**
@@ -71,7 +73,56 @@ const profileFromDB = async (id: string) => {
   return result;
 };
 
+const updateUserIntoDB = async (
+  userUpdatedData: User,
+  profile: Profile,
+  user: TJWTPayload
+) => {
+  return prisma.$transaction(async (tx) => {
+    const userId = user.userId;
+    const currentEmail = user.user?.email;
+
+    const previousProfileData = await prisma.profile.findUnique({
+      where: { userId },
+      select: {
+        picPublicId: true,
+      },
+    });
+
+    if (previousProfileData?.picPublicId) {
+      await cloudinary.api.delete_resources([previousProfileData?.picPublicId]);
+    }
+
+    // Prepare modified user data
+    const modifiedUserData = {
+      ...userUpdatedData,
+      ...(userUpdatedData.email && userUpdatedData.email !== currentEmail
+        ? { email: userUpdatedData.email, isEmailVerified: false }
+        : {}),
+    };
+
+    // Update user data if there are any changes
+    if (Object.keys(modifiedUserData).length) {
+      await tx.user.update({
+        where: { id: userId },
+        data: modifiedUserData,
+      });
+    }
+
+    // Update profile data if there are any changes
+    if (Object.keys(profile).length) {
+      await tx.profile.update({
+        where: { userId: userId },
+        data: {
+          ...profile, // Spread the profile fields to update
+        },
+      });
+    }
+  });
+};
+
 export const UserService = {
   createIntoDB,
   profileFromDB,
+  updateUserIntoDB,
 };

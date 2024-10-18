@@ -53,6 +53,7 @@ const authGuard =
           status: true,
           isEmailVerified: true,
           needsPasswordChange: true,
+          email: true,
           loggedInDevices: {
             select: {
               tokenId: true,

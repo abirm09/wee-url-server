@@ -11,7 +11,6 @@ const create = catchAsync(async (req: Request, res: Response) => {
 
   successResponse(res, {
     statusCode: httpStatus.CREATED,
-    success: true,
     message: "User created successfully",
   });
 });
@@ -21,8 +20,19 @@ const profile = catchAsync(async (req: Request, res: Response) => {
 
   successResponse(res, {
     statusCode: httpStatus.OK,
-    success: true,
     message: "Profile data retrieved successfully",
+    data: result,
+  });
+});
+
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const { user, profile } = req.body;
+
+  const result = await UserService.updateUserIntoDB(user, profile, req.user);
+
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Profile updated successfully",
     data: result,
   });
 });
@@ -30,4 +40,5 @@ const profile = catchAsync(async (req: Request, res: Response) => {
 export const UserController = {
   create,
   profile,
+  updateUser,
 };

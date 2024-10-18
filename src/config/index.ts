@@ -39,6 +39,15 @@ const envVarsZodSchema = z.object({
   GOOGLE_SMTP_PASS: z.string({
     required_error: "GOOGLE_SMTP_PASS is required",
   }),
+  CLOUDINARY_CLOUD_NAME: z.string({
+    required_error: "CLOUDINARY_CLOUD_NAME is required",
+  }),
+  CLOUDINARY_API_KEY: z.string({
+    required_error: "CLOUDINARY_API_KEY is required",
+  }),
+  CLOUDINARY_API_SECRET: z.string({
+    required_error: "CLOUDINARY_API_SECRET is required",
+  }),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -60,5 +69,10 @@ export default {
   google_smtp: {
     user: envVars.GOOGLE_SMTP_USER,
     pass: envVars.GOOGLE_SMTP_PASS,
+  },
+  CLOUDINARY: {
+    cloud_name: envVars.CLOUDINARY_CLOUD_NAME,
+    api_key: envVars.CLOUDINARY_API_KEY,
+    api_secret: envVars.CLOUDINARY_API_SECRET,
   },
 };

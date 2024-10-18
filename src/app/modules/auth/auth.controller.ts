@@ -23,7 +23,6 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
   successResponse(res, {
     statusCode: httpStatus.OK,
-    success: true,
     message: "Log in successful",
     data: { token: accessToken },
   });
@@ -36,7 +35,6 @@ const accessToken = catchAsync(async (req: Request, res: Response) => {
 
   successResponse(res, {
     statusCode: httpStatus.OK,
-    success: true,
     message: "Access token retrieved successfully",
     data: { token },
   });
@@ -48,7 +46,6 @@ const createVerifyEmailRequest = catchAsync(
 
     successResponse(res, {
       statusCode: httpStatus.CREATED,
-      success: true,
       message: "Email verification email sended successfully",
     });
   }

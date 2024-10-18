@@ -8,6 +8,7 @@ declare global {
       user: TJWTPayload;
       userAgent?: TUserAgent;
       userIp?: string;
+      fileValidationError?: string;
     }
   }
 }
