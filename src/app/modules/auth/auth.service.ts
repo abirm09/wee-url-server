@@ -3,15 +3,19 @@ import bcrypt from "bcryptjs";
 import { Response } from "express";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
+import otpGenerator from "otp-generator";
 import { v4 as uuid } from "uuid";
 import { prisma } from "../../../app";
 import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
+// import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
 import { TJWTPayload } from "../../../types/jwt/payload";
 import TUserAgent from "../../../types/userAgent";
 import isValidUser from "../../helper/isValidUser";
+// import { AuthHelper } from "./auth.helper";
+
 /**
  * The login function validates user credentials, generates access and refresh tokens, and logs in the
  * user's device information.
@@ -63,12 +67,12 @@ const login = async (
       tokenId,
     };
 
-    const refreshToken = jwt.sign(tokenPayload, config.refresh_token_secret, {
-      expiresIn: config.refresh_token_expires_in,
+    const refreshToken = jwt.sign(tokenPayload, config.refresh_token.secret, {
+      expiresIn: config.refresh_token.expires_in,
     });
 
-    const accessToken = jwt.sign(tokenPayload, config.access_token_secret, {
-      expiresIn: config.access_token_expires_in,
+    const accessToken = jwt.sign(tokenPayload, config.access_token.secret, {
+      expiresIn: config.access_token.expires_in,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,7 +87,7 @@ const login = async (
       browser: userAgent?.browser?.name,
       city: null,
       country: null,
-      expiresAt: getDateCustomDaysFromNow(config.refresh_token_expires_in),
+      expiresAt: getDateCustomDaysFromNow(config.refresh_token.expires_in),
     };
 
     await tx.loggedInDevice.create({ data: loggedInDeviceData });
@@ -111,7 +115,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
     // Verify the refresh token and extract the payload
     const { tokenId, userId, role } = jwt.verify(
       refreshToken,
-      config.refresh_token_secret
+      config.refresh_token.secret
     ) as TJWTPayload;
 
     return prisma.$transaction(async (tx) => {
@@ -137,8 +141,8 @@ const accessToken = async (refreshToken: string, res: Response) => {
       });
 
       // Generate a new access token
-      return jwt.sign({ userId, role, tokenId }, config.access_token_secret, {
-        expiresIn: config.access_token_expires_in,
+      return jwt.sign({ userId, role, tokenId }, config.access_token.secret, {
+        expiresIn: config.access_token.expires_in,
       });
     });
   } catch (error) {
@@ -152,18 +156,71 @@ const accessToken = async (refreshToken: string, res: Response) => {
   }
 };
 
-// const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
-//   await prisma.emailVerificationOTP.create({ data: {} });
-//   const otp = otpGenerator.generate(6, {
-//     upperCaseAlphabets: false,
-//     lowerCaseAlphabets: false,
-//     specialChars: false,
-//   });
-//   console.log(otp);
-// };
+const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUnique({
+      where: { id: payload.userId },
+      select: {
+        email: true,
+        fullName: true,
+        isEmailVerified: true,
+        emailVerificationOTPs: {
+          select: {
+            id: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    if (!user?.email)
+      throw new ApiError(httpStatus.BAD_REQUEST, "No user found.");
+
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000); // Subtract 15 minutes from the current time
+
+    const findLessThan15MinOTPs = user?.emailVerificationOTPs?.filter(
+      (item) => new Date(item.createdAt) > fifteenMinutesAgo // Check if the OTP was created within the last 15 minutes
+    );
+
+    if (Number(findLessThan15MinOTPs?.length || 0) > 3)
+      throw new ApiError(
+        httpStatus.TOO_MANY_REQUESTS,
+        "To many email requests"
+      );
+
+    await tx.emailVerificationOTP.updateMany({
+      where: {
+        id: { in: user?.emailVerificationOTPs?.map((item) => item.id) },
+      },
+      data: {
+        isValid: false,
+      },
+    });
+
+    if (user.isEmailVerified)
+      throw new ApiError(httpStatus.BAD_REQUEST, "Email is already verified.");
+
+    const otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    // await sendMailWithNodeMailer({
+    //   to: [user?.email],
+    //   subject: "Verify Your Email for WeeURL Account",
+    //   html: AuthHelper.OTPEmailTemplate({ userName: user.fullName, otp }),
+    // });
+
+    await tx.emailVerificationOTP.create({
+      data: { otp, userId: payload.userId },
+    });
+  });
+};
 
 export const AuthService = {
   login,
   accessToken,
-  // createVerifyEmailRequestIntoDB,
+  createVerifyEmailRequestIntoDB,
 };

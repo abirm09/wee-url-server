@@ -1,4 +1,5 @@
 import { Router } from "express";
+import authGuard from "../../middlewares/authGuard";
 import userAgent from "../../middlewares/userAgent";
 import userIp from "../../middlewares/userIp";
 import validateRequest from "../../middlewares/validateRequest";
@@ -21,10 +22,14 @@ route.get(
   AuthController.accessToken
 );
 
-// route.post(
-//   "/email-verify-request",
-//   validateRequest(AuthValidations.accessToken),
-//   AuthController.createVerifyEmailRequest
-// );
+route.post(
+  "/email-verify-request",
+  authGuard({
+    requiredRoles: ["superAdmin", "admin", "customer"],
+    validateIsEmailVerified: false,
+  }),
+  validateRequest(AuthValidations.accessToken),
+  AuthController.createVerifyEmailRequest
+);
 
 export const AuthRoutes = route;

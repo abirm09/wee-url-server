@@ -37,7 +37,7 @@ const authGuard =
 
       let payload;
       try {
-        payload = jwt.verify(token, config.access_token_secret) as TJWTPayload;
+        payload = jwt.verify(token, config.access_token.secret) as TJWTPayload;
       } catch (err) {
         const error = err as Error;
         if (error.name === "TokenExpiredError") {
@@ -52,6 +52,7 @@ const authGuard =
           role: true,
           status: true,
           isEmailVerified: true,
+          needsPasswordChange: true,
           loggedInDevices: {
             select: {
               tokenId: true,
@@ -83,18 +84,27 @@ const authGuard =
             "Please verify your email"
           );
 
+      // Check if password change required
+      if (user.needsPasswordChange)
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          "Please change your password"
+        );
+
       // Check if user reached max login device limit
       if (validateMaxDeviceLimit)
         if (user?.loggedInDevices?.length > 4)
           throw new ApiError(
             httpStatus.BAD_REQUEST,
-            "Reached max login device limit. Please logout from another devices."
+            "Too many devices logged in."
           );
 
       // Check roles
-      if (requiredRoles?.length) {
-        if (!requiredRoles.includes(user?.role)) {
-          throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
+      if (user.role !== "superAdmin") {
+        if (requiredRoles?.length) {
+          if (!requiredRoles.includes(user?.role)) {
+            throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
+          }
         }
       }
 

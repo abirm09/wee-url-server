@@ -28,11 +28,17 @@ const envVarsZodSchema = z.object({
   CLIENT_SIDE_DOMAIN: z.string({
     required_error: "CLIENT_SIDE_DOMAIN is required",
   }),
-  REFRESH_TOKEN_EXPIRES: z
+  REFRESH_TOKEN_COOKIE_EXPIRES_IN: z
     .string({
-      required_error: "REFRESH_TOKEN_EXPIRES is required",
+      required_error: "REFRESH_TOKEN_COOKIE_EXPIRES is required",
     })
     .refine((val) => Number(val)),
+  GOOGLE_SMTP_USER: z.string({
+    required_error: "GOOGLE_SMTP_USER is required",
+  }),
+  GOOGLE_SMTP_PASS: z.string({
+    required_error: "GOOGLE_SMTP_PASS is required",
+  }),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -41,10 +47,18 @@ export default {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   client_side_urls: envVars.CLIENT_SIDE_URLS,
-  refresh_token_secret: envVars.REFRESH_TOKEN_SECRET,
-  access_token_secret: envVars.ACCESS_TOKEN_SECRET,
-  refresh_token_expires_in: envVars.REFRESH_TOKEN_EXPIRES_IN,
-  access_token_expires_in: envVars.ACCESS_TOKEN_EXPIRES_IN,
   client_side_domain: envVars.CLIENT_SIDE_DOMAIN,
-  refresh_token_expires: envVars.REFRESH_TOKEN_EXPIRES,
+  refresh_token: {
+    secret: envVars.REFRESH_TOKEN_SECRET,
+    expires_in: envVars.REFRESH_TOKEN_EXPIRES_IN,
+    cookie_expires_in: envVars.REFRESH_TOKEN_COOKIE_EXPIRES_IN,
+  },
+  access_token: {
+    secret: envVars.ACCESS_TOKEN_SECRET,
+    expires_in: envVars.ACCESS_TOKEN_EXPIRES_IN,
+  },
+  google_smtp: {
+    user: envVars.GOOGLE_SMTP_USER,
+    pass: envVars.GOOGLE_SMTP_PASS,
+  },
 };

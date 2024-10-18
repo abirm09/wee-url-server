@@ -18,7 +18,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
   setCookie(res, {
     cookieName: "we_url_t",
     value: refreshToken,
-    cookieOption: { maxAge: Number(config.refresh_token_expires) },
+    cookieOption: { maxAge: Number(config.refresh_token.cookie_expires_in) },
   });
 
   successResponse(res, {
@@ -42,20 +42,20 @@ const accessToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const createVerifyEmailRequest = catchAsync(
-//   async (req: Request, res: Response) => {
-//     await AuthService.createVerifyEmailRequestIntoDB(req.user);
+const createVerifyEmailRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    await AuthService.createVerifyEmailRequestIntoDB(req.user);
 
-//     successResponse(res, {
-//       statusCode: httpStatus.CREATED,
-//       success: true,
-//       message: "Email verification email sended successfully",
-//     });
-//   }
-// );
+    successResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "Email verification email sended successfully",
+    });
+  }
+);
 
 export const AuthController = {
   login,
   accessToken,
-  // createVerifyEmailRequest,
+  createVerifyEmailRequest,
 };

@@ -11,7 +11,9 @@ route.post("/", validateRequest(UserValidations.create), UserController.create);
 route.get(
   "/profile",
   authGuard({
-    requiredRoles: ["superAdmin", "admin", "customer"],
+    requiredRoles: ["admin", "customer"],
+    validateIsEmailVerified: false,
+    validateMaxDeviceLimit: false,
   }),
   UserController.profile
 );
