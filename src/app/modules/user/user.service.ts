@@ -2,6 +2,7 @@ import { Profile, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
 import { prisma } from "../../../app";
+import config from "../../../config";
 import cloudinary from "../../../config/cloudinary";
 import ApiError from "../../../errors/ApiError";
 import { TJWTPayload } from "../../../types/jwt/payload";
@@ -15,7 +16,10 @@ import { UserUtil } from "./user.util";
  * user-related information needed to create a new user entry in the database.
  */
 const createIntoDB = async (payload: User) => {
-  const hashedPassword = await bcrypt.hash(payload.password, 10);
+  const hashedPassword = await bcrypt.hash(
+    payload.password,
+    config.bcrypt_salt_rounds
+  );
 
   await prisma.$transaction(async (tx) => {
     const userId = UserUtil.createId();

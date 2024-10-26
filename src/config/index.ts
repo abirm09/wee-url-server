@@ -48,6 +48,20 @@ const envVarsZodSchema = z.object({
   CLOUDINARY_API_SECRET: z.string({
     required_error: "CLOUDINARY_API_SECRET is required",
   }),
+  SUPER_ADMIN_FULL_NAME: z.string({
+    required_error: "SUPER_ADMIN_FULL_NAME is required",
+  }),
+  SUPER_ADMIN_EMAIl: z.string({
+    required_error: "SUPER_ADMIN_EMAIl is required",
+  }),
+  SUPER_ADMIN_PASSWORD: z.string({
+    required_error: "SUPER_ADMIN_PASSWORD is required",
+  }),
+  BCRYPT_SALT_ROUNDS: z
+    .string({
+      required_error: "BCRYPT_SALT_ROUNDS is required",
+    })
+    .refine((val) => Number(val)),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -70,9 +84,15 @@ export default {
     user: envVars.GOOGLE_SMTP_USER,
     pass: envVars.GOOGLE_SMTP_PASS,
   },
-  CLOUDINARY: {
+  cloudinary: {
     cloud_name: envVars.CLOUDINARY_CLOUD_NAME,
     api_key: envVars.CLOUDINARY_API_KEY,
     api_secret: envVars.CLOUDINARY_API_SECRET,
   },
+  super_admin_data: {
+    full_name: envVars.SUPER_ADMIN_FULL_NAME,
+    email: envVars.SUPER_ADMIN_EMAIl,
+    password: envVars.SUPER_ADMIN_PASSWORD,
+  },
+  bcrypt_salt_rounds: Number(envVars.BCRYPT_SALT_ROUNDS),
 };
