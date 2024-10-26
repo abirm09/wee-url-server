@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { TErrorMessages } from "../../types/error";
+import { TErrorMessages } from "../../types/response/genericErrorResponse";
 
 export const notFoundHandler = (
   req: Request,
