@@ -15,7 +15,7 @@ import config from "./config";
 const app: Application = express();
 
 const corsOptions: CorsOptions = {
-  origin: config.client_side_urls?.split(","),
+  origin: config.client_side_urls,
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type, Authorization",

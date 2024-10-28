@@ -8,11 +8,12 @@ import ApiError from "../../errors/ApiError";
 import { TJWTPayload } from "../../types/jwt/payload";
 
 /**
- * The `authGuard` function is a middleware, that performs authentication, authorization,
- * and device limit validation for users based on their roles and login status.
+ * The `authGuard` function is a middleware in TypeScript that performs various authentication checks
+ * such as verifying tokens, checking user status, email verification, password change, device limits,
+ * and required roles before allowing access to routes.
  * @param  - The `authGuard` function is a middleware function that acts as a guard for protecting
- * routes by checking the authorization token, user roles, and other conditions before allowing access
- * to the route.
+ * routes by checking various conditions related to user authentication and authorization. Here's an
+ * explanation of the parameters it accepts:
  */
 const authGuard =
   ({
@@ -41,9 +42,9 @@ const authGuard =
       } catch (err) {
         const error = err as Error;
         if (error.name === "TokenExpiredError") {
-          throw new ApiError(httpStatus.UNAUTHORIZED, "Token expired");
+          throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication failed");
         }
-        throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid token");
+        throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication failed");
       }
 
       const user = await prisma.user.findUnique({
@@ -55,34 +56,35 @@ const authGuard =
           needsPasswordChange: true,
           email: true,
           loggedInDevices: {
+            where: { tokenId: payload.tokenId },
             select: {
-              tokenId: true,
               isBlocked: true,
             },
           },
         },
       });
-
       // If no user exists
       if (!user) throw new ApiError(httpStatus.BAD_REQUEST, "No user found");
 
       // Check if the user has been banned
       if (user.status === "banned")
-        throw new ApiError(httpStatus.BAD_REQUEST, "You have been banned!");
+        throw new ApiError(httpStatus.FORBIDDEN, "You have been banned!");
 
-      // Check token is blocked
-      const findLoggedInDeviceData = user?.loggedInDevices?.find(
-        (item) => item?.tokenId === payload?.tokenId
-      );
+      // Check token is blocked no not found
+      const findLoggedInDeviceData = user?.loggedInDevices![0];
+
+      if (!findLoggedInDeviceData)
+        throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized");
+
       if (findLoggedInDeviceData?.isBlocked)
-        throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorize request");
+        throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorize");
 
       // Check if user verified their email or not
       if (validateIsEmailVerified)
         if (user.isEmailVerified === false)
           throw new ApiError(
             httpStatus.BAD_REQUEST,
-            "Please verify your email"
+            "Please verify your email address"
           );
 
       // Check if password change required

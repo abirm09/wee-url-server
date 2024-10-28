@@ -10,9 +10,10 @@ const envVarsZodSchema = z.object({
     .string({ required_error: "PORT is required" })
     .default("5000")
     .refine((val) => Number(val)),
-  CLIENT_SIDE_URLS: z.string({
-    required_error: "CLIENT_SIDE_URLS is required",
-  }),
+  CLIENT_SIDE_URLS: z.preprocess(
+    (val) => JSON.parse(val as string),
+    z.array(z.string())
+  ),
   REFRESH_TOKEN_SECRET: z.string({
     required_error: "REFRESH_TOKEN_SECRET is required",
   }),
@@ -61,14 +62,20 @@ const envVarsZodSchema = z.object({
     .string({
       required_error: "BCRYPT_SALT_ROUNDS is required",
     })
+    .default("12")
     .refine((val) => Number(val)),
+  MAX_DEVICE_LOGIN_LIMIT: z
+    .string({
+      required_error: "MAX_DEVICE_LOGIN_LIMIT is required",
+    })
+    .default("4"),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
 
 export default {
   env: envVars.NODE_ENV,
-  port: envVars.PORT,
+  port: parseInt(envVars.PORT),
   client_side_urls: envVars.CLIENT_SIDE_URLS,
   client_side_domain: envVars.CLIENT_SIDE_DOMAIN,
   refresh_token: {
@@ -94,5 +101,6 @@ export default {
     email: envVars.SUPER_ADMIN_EMAIl,
     password: envVars.SUPER_ADMIN_PASSWORD,
   },
-  bcrypt_salt_rounds: Number(envVars.BCRYPT_SALT_ROUNDS),
+  bcrypt_salt_rounds: parseInt(envVars.BCRYPT_SALT_ROUNDS),
+  max_device_login_limit: parseInt(envVars.MAX_DEVICE_LOGIN_LIMIT),
 };

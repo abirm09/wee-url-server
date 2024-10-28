@@ -11,7 +11,6 @@ export type TJWTPayload = {
     status: UserAccountStatus;
     email: string;
     loggedInDevices: {
-      tokenId: string;
       isBlocked: boolean;
     }[];
   } | null;
