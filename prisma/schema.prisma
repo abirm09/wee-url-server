@@ -97,7 +97,7 @@ model PaymentMethod {
   userId          String
   user            User            @relation(fields: [userId], references: [id])
   provider        PaymentProvider // Enum for Stripe, PayPal, etc.
-  paymentMethodId String // For Stripe (paymentMethodId or customerId)
+  paymentMethodId String? // For Stripe (paymentMethodId or customerId)
   paypalAccountId String? // For PayPal, nullable if not using PayPal
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -200,16 +200,16 @@ model UserCredit {
 }
 
 model Coupon {
-  id                 String            @id @default(uuid())
-  code               String            @unique // Coupon code, e.g., "WELCOME10"
-  description        String? // Brief description of the coupon
-  discountAmount     Float? // Fixed discount amount, e.g., $10 off
-  discountPercent    Float? // Percentage discount, e.g., 10% off
-  isActive           Boolean           @default(true) // Coupon status
-  maxRedemptions     Int? // Maximum number of times this coupon can be used
-  currentRedemptions Int               @default(0) // Track current redemption count
-  expiryDate         DateTime? // Optional: Expiration date for the coupon
-  minSubscription    SubscriptionType? // Minimum subscription required to use coupon
+  id                   String             @id @default(uuid())
+  code                 String             @unique // Coupon code, e.g., "WELCOME10"
+  description          String? // Brief description of the coupon
+  discountAmount       Float? // Fixed discount amount, e.g., $10 off
+  discountPercent      Float? // Percentage discount, e.g., 10% off
+  isActive             Boolean            @default(true) // Coupon status
+  maxRedemptions       Int? // Maximum number of times this coupon can be used
+  currentRedemptions   Int                @default(0) // Track current redemption count
+  expiryDate           DateTime? // Optional: Expiration date for the coupon
+  allowedSubscriptions SubscriptionType[] // Allowed subscription required to use coupon
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
