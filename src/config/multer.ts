@@ -2,17 +2,18 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "./cloudinary";
 
-const params = {
-  folder: "WeeURL",
+const userProfilePicParams = {
+  folder: "WeeURL/userProfilePictures",
 };
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params,
-});
+const storage = (params: { folder: string }) =>
+  new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params,
+  });
 
-const upload = multer({
-  storage: storage,
+const userProfilePictures = multer({
+  storage: storage(userProfilePicParams),
   limits: { fileSize: 1 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     // Accept only jpg, jpeg, and png formats
@@ -27,4 +28,6 @@ const upload = multer({
   },
 });
 
-export default upload;
+export const upload = {
+  userProfilePictures,
+};

@@ -3,9 +3,9 @@ import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
 import { prisma } from "../../../app";
 import config from "../../../config";
-import cloudinary from "../../../config/cloudinary";
 import ApiError from "../../../errors/ApiError";
 import { TJWTPayload } from "../../../types/jwt/payload";
+import deleteImageFromCloudinary from "../../../utilities/cloudinary/deleteImageFromCloudinary";
 import { UserUtil } from "./user.util";
 
 /**
@@ -116,7 +116,7 @@ const updateUserIntoDB = async (
     // Prepare modified user data
     const modifiedUserData = {
       ...userUpdatedData,
-      ...(userUpdatedData.email && userUpdatedData.email !== currentEmail
+      ...(userUpdatedData?.email && userUpdatedData?.email !== currentEmail
         ? { email: userUpdatedData.email, isEmailVerified: false }
         : {}),
     };
@@ -140,12 +140,9 @@ const updateUserIntoDB = async (
         });
 
         if (previousProfileData?.picPublicId) {
-          await cloudinary.api.delete_resources([
-            previousProfileData?.picPublicId,
-          ]);
+          await deleteImageFromCloudinary([previousProfileData?.picPublicId]);
         }
       }
-
       await tx.profile.update({
         where: { userId: userId },
         data: {

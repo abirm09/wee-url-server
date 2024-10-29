@@ -16,17 +16,19 @@ const create = z.object({
 
 const update = z.object({
   body: z.object({
-    user: z.object({
-      fullName: z
-        .string()
-        .max(150, "Full name must be at most 150 characters long")
-        .optional(),
-      email: z
-        .string()
-        .email()
-        .max(254, "Email must be at most 254 characters long")
-        .optional(),
-    }),
+    user: z
+      .object({
+        fullName: z
+          .string()
+          .max(150, "Full name must be at most 150 characters long")
+          .optional(),
+        email: z
+          .string()
+          .email()
+          .max(254, "Email must be at most 254 characters long")
+          .optional(),
+      })
+      .optional(),
     profile: z.object({
       picture: z.string().optional(),
       picPublicId: z.string().optional(),
