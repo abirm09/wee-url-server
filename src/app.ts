@@ -11,44 +11,47 @@ import userAgent from "./app/middlewares/userAgent";
 import router from "./app/routes";
 import config from "./config";
 
-// App Instance
-const app: Application = express();
-
-const corsOptions: CorsOptions = {
-  origin: config.client_side_urls,
-  credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: "Content-Type, Authorization",
-};
-
-if (config.env === "production") {
-  app.set("trust proxy", 1);
-}
-
-// Middlewares
-app.use(cors(corsOptions));
-app.use(cookieParser());
-app.use(helmet());
-app.use(express.json());
-app.use(compression());
-if (config.env === "development") {
-  app.use(morgan("dev"));
-}
-
+// Create an instance of PrismaClient
 export const prisma = new PrismaClient();
 
-app.get("/", userAgent, (req, res) => {
-  res.status(301).redirect("https://weeurl.abirmahmud.top");
-});
+// Function to create and configure the Express application
+export const createApp = (): Application => {
+  // App Instance
+  const app: Application = express();
 
-// API routes
+  const corsOptions: CorsOptions = {
+    origin: config.client_side_urls,
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type, Authorization",
+  };
 
-app.use("/api/v1", router);
+  if (config.env === "production") {
+    app.set("trust proxy", 1);
+  }
 
-// Global error handler
-app.use(globalErrorHandler);
+  // Middlewares
+  app.use(cors(corsOptions));
+  app.use(cookieParser());
+  app.use(helmet());
+  app.use(express.json());
+  app.use(compression());
+  if (config.env === "development") {
+    app.use(morgan("dev"));
+  }
 
-// handle not found route
-app.use(notFoundHandler);
+  app.get("/", userAgent, (req, res) => {
+    res.status(301).redirect(config.client_side_urls[0]);
+  });
 
-export default app;
+  // API routes
+  app.use("/api/v1", router);
+
+  // Global error handler
+  app.use(globalErrorHandler);
+
+  // Handle not found route
+  app.use(notFoundHandler);
+
+  return app; // Return the configured app instance
+};

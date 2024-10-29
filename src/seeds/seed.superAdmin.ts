@@ -1,8 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import config from "./config";
-import { logger } from "./utilities/logger/logger";
-
+import config from "../config";
+import { logger } from "../utilities/logger/logger";
 const prisma = new PrismaClient();
 
 const main = async () => {

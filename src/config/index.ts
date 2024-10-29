@@ -69,6 +69,9 @@ const envVarsZodSchema = z.object({
       required_error: "MAX_DEVICE_LOGIN_LIMIT is required",
     })
     .default("4"),
+  TEST_ADMIN_REFRESH_TOKEN: z.string().optional(),
+  TEST_ADMIN_PASSWORD: z.string().optional(),
+  TEST_ADMIN_EMAIL: z.string().optional(),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -103,4 +106,9 @@ export default {
   },
   bcrypt_salt_rounds: parseInt(envVars.BCRYPT_SALT_ROUNDS),
   max_device_login_limit: parseInt(envVars.MAX_DEVICE_LOGIN_LIMIT),
+  test_admin: {
+    email: String(envVars.TEST_ADMIN_EMAIL),
+    password: String(envVars.TEST_ADMIN_PASSWORD),
+    refresh_token: String(envVars.TEST_ADMIN_REFRESH_TOKEN),
+  },
 };
