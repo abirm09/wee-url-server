@@ -45,6 +45,45 @@ const createIntoDB = async (
   });
 };
 
+const getAllFromDB = async () => {
+  const result = await prisma.subscriptionPlan.findMany({
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      description: true,
+      maxURLsAllowed: true,
+      customURLSlug: true,
+      APIAccess: true,
+      bulkURLShortening: true,
+      customURLRedirectRules: true,
+      canSetExpiration: true,
+      allowURLEditing: true,
+      showAds: true,
+      QRCode: true,
+      customDomainAllowed: true,
+      analyticsAccess: true,
+      prioritySupport: true,
+      brandingCustomization: true,
+      geoTargetingEnabled: true,
+      linkRotation: true,
+      isPublic: true,
+      isActive: true,
+      billingPeriods: {
+        select: {
+          id: true,
+          periodType: true,
+          price: true,
+        },
+      },
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  return result;
+};
+
 export const SubscriptionPlanService = {
   createIntoDB,
+  getAllFromDB,
 };

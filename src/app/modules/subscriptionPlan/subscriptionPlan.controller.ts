@@ -17,6 +17,16 @@ const create = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllPlans = catchAsync(async (req: Request, res: Response) => {
+  const result = await SubscriptionPlanService.getAllFromDB();
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "All subscription plan retrieved successful",
+    data: result,
+  });
+});
+
 export const SubscriptionPlanController = {
   create,
+  getAllPlans,
 };

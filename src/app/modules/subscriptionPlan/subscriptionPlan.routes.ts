@@ -13,4 +13,10 @@ router.post(
   SubscriptionPlanController.create
 );
 
+router.get(
+  "/",
+  authGuard({ requiredRoles: ["admin"] }),
+  SubscriptionPlanController.getAllPlans
+);
+
 export const SubscriptionPlanRoutes = router;
