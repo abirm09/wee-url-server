@@ -134,6 +134,8 @@ model SubscriptionPlan {
   brandingCustomization  Boolean          @default(false) // Remove your platform’s branding on links
   geoTargetingEnabled    Boolean          @default(false) // Redirect users based on geographical location
   linkRotation           Boolean          @default(false) // Rotate multiple URLs for the same short link
+  isPublic               Boolean          @default(true)
+  isActive               Boolean          @default(true)
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -148,6 +150,7 @@ model SubscriptionPlan {
 
 enum BillingType {
   monthly
+  sixMonth
   yearly
 }
 
