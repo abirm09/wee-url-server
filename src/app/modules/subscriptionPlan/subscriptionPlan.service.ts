@@ -1,5 +1,7 @@
 import { BillingPeriod, BillingType, SubscriptionPlan } from "@prisma/client";
+import httpStatus from "http-status";
 import { prisma } from "../../../app";
+import ApiError from "../../../errors/ApiError";
 
 const createIntoDB = async (
   subscriptionData: SubscriptionPlan,
@@ -83,7 +85,63 @@ const getAllFromDB = async () => {
   return result;
 };
 
+const updateIntoDB = async (
+  planId: string,
+  subscriptionData: SubscriptionPlan,
+  billingData: BillingPeriod[]
+) => {
+  return prisma.$transaction(async (tx) => {
+    const previousData = await tx.subscriptionPlan.findUnique({
+      where: {
+        id: planId,
+      },
+      select: {
+        name: true,
+        type: true,
+        billingPeriods: {
+          select: {
+            id: true,
+            periodType: true,
+          },
+        },
+      },
+    });
+    if (!previousData)
+      throw new ApiError(httpStatus.BAD_REQUEST, "No subscription plan found");
+
+    subscriptionData.id = planId;
+
+    if (Object.keys(subscriptionData || []).length) {
+      await tx.subscriptionPlan.update({
+        where: { id: planId },
+        data: subscriptionData,
+      });
+    }
+
+    if (billingData.length > 0) {
+      const currentBillingPeriods = new Map(
+        previousData.billingPeriods.map((bp) => [bp.periodType, bp.id])
+      );
+
+      // Process each billing data input
+      for (const billing of billingData) {
+        if (currentBillingPeriods.has(billing.periodType)) {
+          // Update existing billing period
+          const id = currentBillingPeriods.get(billing.periodType);
+          billing.id = id as unknown as string;
+          await tx.billingPeriod.update({
+            where: { id },
+            data: billing,
+          });
+          currentBillingPeriods.delete(billing.periodType); // Mark as processed
+        }
+      }
+    }
+  });
+};
+
 export const SubscriptionPlanService = {
   createIntoDB,
   getAllFromDB,
+  updateIntoDB,
 };

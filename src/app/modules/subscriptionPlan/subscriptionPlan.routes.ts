@@ -19,4 +19,11 @@ router.get(
   SubscriptionPlanController.getAllPlans
 );
 
+router.patch(
+  "/:id",
+  authGuard({ requiredRoles: ["admin"] }),
+  validateRequest(SubscriptionPlanValidation.update),
+  SubscriptionPlanController.updatePlan
+);
+
 export const SubscriptionPlanRoutes = router;
