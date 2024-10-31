@@ -72,6 +72,7 @@ const envVarsZodSchema = z.object({
   TEST_ADMIN_REFRESH_TOKEN: z.string().optional(),
   TEST_ADMIN_PASSWORD: z.string().optional(),
   TEST_ADMIN_EMAIL: z.string().optional(),
+  REDIS_URL: z.string({ required_error: "REDIS_URL is required" }),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -111,4 +112,5 @@ export default {
     password: String(envVars.TEST_ADMIN_PASSWORD),
     refresh_token: String(envVars.TEST_ADMIN_REFRESH_TOKEN),
   },
+  redis_url: envVars.REDIS_URL,
 };

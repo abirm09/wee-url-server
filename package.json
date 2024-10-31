@@ -72,6 +72,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^6.9.16",
     "otp-generator": "^4.0.1",
+    "redis": "^4.7.0",
     "request-ip": "^3.3.0",
     "ua-parser-js": "^1.0.39",
     "uuid": "^11.0.1",

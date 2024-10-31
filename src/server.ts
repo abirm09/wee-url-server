@@ -1,11 +1,14 @@
 import { Server } from "http";
 import { createApp } from "./app";
 import config from "./config";
+import { RedisClient } from "./shared/redis";
 import { logger } from "./utilities/logger/logger";
 
 const app = createApp();
 
 const bootstrap = async () => {
+  await RedisClient.connect();
+
   const server: Server = app.listen(config.port, () => {
     logger.console.info(`===${config.env}===`);
     logger.console.info(`Server is running at http://localhost:${config.port}`);
@@ -21,10 +24,12 @@ const bootstrap = async () => {
       process.exit(1);
     }
   };
+
   const unexpectedErrorHandler = (error: unknown, errorType: string) => {
     logger.console.info(error);
     exitHandler(error, errorType);
   };
+
   const uncaughtException = (error: unknown) =>
     unexpectedErrorHandler(error, "Uncaught exception");
 
