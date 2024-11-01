@@ -14,47 +14,84 @@ enum UsersRole {
   superAdmin
 }
 
+enum UserAccountStatus {
+  active
+  banned
+  pendingDelete
+}
+
 model User {
-  id                  String           @id @default(uuid())
-  userId              String           @unique
+  id                  String            @id @default(uuid())
+  userId              String            @unique
   fullName            String
-  email               String           @unique
+  email               String            @unique
   password            String
-  profile             Profile?
-  loggedInDevices     LoggedInDevice[]
-  isEmailVerified     Boolean          @default(false)
+  isEmailVerified     Boolean           @default(false)
   emailVerifiedAt     DateTime?
-  needsPasswordChange Boolean          @default(false)
-  role                UsersRole        @default(customer)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
+  needsPasswordChange Boolean           @default(false)
+  role                UsersRole         @default(customer)
+  status              UserAccountStatus @default(active)
+  requestDeleteAt     DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  permissions         AdminPermission[]
+
+  profile               Profile?
+  emailVerificationOTPs EmailVerificationOTP[]
+  loggedInDevices       LoggedInDevice[]
+  subscriptions         Subscription[]
+  userCredit            UserCredit?
+  userTransactions      UserTransaction[]
+  payments              Payment[]
+  paymentMethods        PaymentMethod[]
 
   @@map("users")
 }
 
-model Profile {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  picture   String?
-  user      User     @relation(fields: [userId], references: [id])
+enum AdminPermissionEnum {
+  update_subscription_plan
+  manage_customer
+  create_admin
+  update_admin
+}
+
+model AdminPermission {
+  id    String              @id @default(uuid())
+  name  AdminPermissionEnum @unique
+  users User[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("admin_permissions")
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  picture     String?
+  picPublicId String?
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("profiles")
 }
 
 model LoggedInDevice {
-  id             String    @id @default(uuid())
-  refreshTokenId String    @unique
-  userId         String
-  user           User      @relation(fields: [userId], references: [id])
-  ip             String?
-  os             String?
-  platform       String?
-  browser        String?
-  city           String?
-  country        String?
-  lastUsedAt     DateTime?
+  id         String    @id @default(uuid())
+  tokenId    String    @unique
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  ip         String?
+  os         String?
+  platform   String?
+  browser    String?
+  city       String?
+  country    String?
+  lastUsedAt DateTime? @default(now())
+  isBlocked  Boolean   @default(false)
+  blockedAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -63,13 +100,207 @@ model LoggedInDevice {
   @@map("logged_in_devices")
 }
 
-model BlockedToken {
-  id            String @id @default(uuid())
-  accessTokenId String
+model EmailVerificationOTP {
+  id      String  @id @default(uuid())
+  userId  String
+  user    User    @relation(fields: [userId], references: [id])
+  otp     String
+  isValid Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  expiresAt DateTime
+}
 
-  @@map("blocked_tokens")
+model PaymentMethod {
+  id              String          @id @default(uuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  provider        PaymentProvider // Enum for Stripe, PayPal, etc.
+  paymentMethodId String? // For Stripe (paymentMethodId or customerId)
+  paypalAccountId String? // For PayPal, nullable if not using PayPal
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("payment_methods")
+}
+
+// Subscription plans
+
+enum SubscriptionType {
+  free
+  starter
+  premium
+  business
+}
+
+model SubscriptionPlan {
+  id                     String           @id @default(uuid())
+  name                   String           @unique
+  type                   SubscriptionType @unique
+  description            String? // Brief description of the plan
+  maxURLsAllowed         Int? // Limit on URLs based on the plan, nullable for unlimited
+  customURLSlug          Boolean          @default(false) // Whether the user can set custom slugs
+  APIAccess              Boolean          @default(false) // API access for integrations
+  bulkURLShortening      Boolean          @default(false) // Ability to shorten URLs in bulk
+  customURLRedirectRules Boolean          @default(false) // Custom rules for redirecting URLs
+  canSetExpiration       Boolean          @default(false) // Option to set expiration for URLs
+  allowURLEditing        Boolean          @default(false) // Allow users to edit shortened URLs
+  showAds                Boolean          @default(true) // Show ads for free or lower plans
+  QRCode                 Boolean          @default(false) // Generate QR code for shortened URLs
+  customDomainAllowed    Boolean          @default(false) // Allow custom domains for paid plans
+  analyticsAccess        Boolean          @default(false) // Access to detailed URL analytics
+  prioritySupport        Boolean          @default(false) // Priority customer support for higher plans
+  brandingCustomization  Boolean          @default(false) // Remove your platform’s branding on links
+  geoTargetingEnabled    Boolean          @default(false) // Redirect users based on geographical location
+  linkRotation           Boolean          @default(false) // Rotate multiple URLs for the same short link
+  isPublic               Boolean          @default(true)
+  isActive               Boolean          @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to Users (Subscriptions)
+  subscriptions  Subscription[]
+  billingPeriods BillingPeriod[]
+
+  @@map("subscription_plans")
+}
+
+enum BillingType {
+  monthly
+  sixMonth
+  yearly
+}
+
+model BillingPeriod {
+  id         String           @id @default(uuid())
+  planId     String // Foreign key to SubscriptionPlan
+  plan       SubscriptionPlan @relation(fields: [planId], references: [id])
+  periodType BillingType // Monthly or Yearly
+  price      Float? // Price for the given period. The amount will be for 1 month
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("billing_periods")
+}
+
+// User's subscription details
+
+model Subscription {
+  id          String           @id @default(uuid())
+  userId      String
+  planId      String
+  user        User             @relation(fields: [userId], references: [id])
+  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
+  startedAt   DateTime         @default(now())
+  expiresAt   DateTime? // Nullable for lifetime or free plans
+  isActive    Boolean          @default(true)
+  isAutoRenew Boolean          @default(false)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  UserTransaction UserTransaction[]
+  payment         Payment?
+
+  @@map("subscriptions")
+}
+
+// User's credits
+
+model UserCredit {
+  id      String @id @default(uuid())
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id])
+  balance Float  @default(0.0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_credits")
+}
+
+model Coupon {
+  id                   String             @id @default(uuid())
+  code                 String             @unique // Coupon code, e.g., "WELCOME10"
+  description          String? // Brief description of the coupon
+  discountAmount       Float? // Fixed discount amount, e.g., $10 off
+  discountPercent      Float? // Percentage discount, e.g., 10% off
+  isActive             Boolean            @default(true) // Coupon status
+  maxRedemptions       Int? // Maximum number of times this coupon can be used
+  currentRedemptions   Int                @default(0) // Track current redemption count
+  expiryDate           DateTime? // Optional: Expiration date for the coupon
+  allowedSubscriptions SubscriptionType[] // Allowed subscription required to use coupon
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userTransactions UserTransaction[] // Track transactions where the coupon was applied
+
+  @@map("coupons")
+}
+
+model UserTransaction {
+  id             String        @id @default(uuid())
+  userId         String
+  subscriptionId String? // Optional: Link to subscription
+  paymentId      String?       @unique // Link to the specific payment
+  user           User          @relation(fields: [userId], references: [id])
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  payment        Payment?      @relation(fields: [paymentId], references: [id])
+  couponId       String? // Coupon applied
+  coupon         Coupon?       @relation(fields: [couponId], references: [id])
+
+  originalCost Float // Cost before discount
+
+  usersCedit Float @default(0) // The amount from credit amount
+  newAmount  Float @default(0) // The amount that is taken new
+
+  discountAmount Float // Discounted amount
+
+  finalCost Float // Final cost after discount
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_transactions")
+}
+
+// Payment
+enum PaymentProvider {
+  stripe
+  paypal
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+  refunded
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  userId         String // The user making the payment
+  subscriptionId String?       @unique // provider       PaymentProvider // e.g., Stripe, PayPal
+  status         PaymentStatus @default(pending)
+  amount         Float // Payment amount
+  transactionId  String // Provider's unique transaction ID
+  paymentMethod  String? // e.g., 'credit_card', 'paypal_balance'
+  discountAmount Float         @default(0.0) // Amount discounted, if any
+  finalAmount    Float // Final amount charged after discount
+  isRefundable   Boolean       @default(false) // Track if payment is refundable
+  refundedAmount Float         @default(0.0) // If refunded, record amount
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id])
+  subscription    Subscription?    @relation(fields: [subscriptionId], references: [id])
+  userTransaction UserTransaction?
+
+  @@map("payments")
 }

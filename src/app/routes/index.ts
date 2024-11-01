@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { UserRoutes } from "../modules/user/user.routes";
+import { AuthRoutes } from "../modules/auth/auth.routes";
+import { SubscriptionRoutes } from "../modules/subscription/subscription.routes";
+import { SubscriptionPlanRoutes } from "../modules/subscription_plan/subscriptionPlan.routes";
+import { UserRoutes } from "../modules/user_management/user/user.routes";
 
 const router = Router();
 
@@ -7,6 +10,18 @@ const moduleRoutes = [
   {
     path: "/user",
     route: UserRoutes,
+  },
+  {
+    path: "/auth",
+    route: AuthRoutes,
+  },
+  {
+    path: "/subscription-plan",
+    route: SubscriptionPlanRoutes,
+  },
+  {
+    path: "/subscription",
+    route: SubscriptionRoutes,
   },
 ];
 
