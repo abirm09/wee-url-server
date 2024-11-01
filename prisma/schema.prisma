@@ -202,7 +202,7 @@ model Subscription {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   UserTransaction UserTransaction[]
-  payments        Payment[]
+  payment         Payment?
 
   @@map("subscriptions")
 }
@@ -246,7 +246,7 @@ model UserTransaction {
   id             String        @id @default(uuid())
   userId         String
   subscriptionId String? // Optional: Link to subscription
-  paymentId      String? // Link to the specific payment
+  paymentId      String?       @unique // Link to the specific payment
   user           User          @relation(fields: [userId], references: [id])
   subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
   payment        Payment?      @relation(fields: [paymentId], references: [id])
@@ -282,26 +282,25 @@ enum PaymentStatus {
 }
 
 model Payment {
-  id             String          @id @default(uuid())
+  id             String        @id @default(uuid())
   userId         String // The user making the payment
-  subscriptionId String? // Optional: If payment is linked to a subscription
-  provider       PaymentProvider // e.g., Stripe, PayPal
-  status         PaymentStatus   @default(pending)
+  subscriptionId String?       @unique // provider       PaymentProvider // e.g., Stripe, PayPal
+  status         PaymentStatus @default(pending)
   amount         Float // Payment amount
   transactionId  String // Provider's unique transaction ID
   paymentMethod  String? // e.g., 'credit_card', 'paypal_balance'
-  discountAmount Float           @default(0.0) // Amount discounted, if any
+  discountAmount Float         @default(0.0) // Amount discounted, if any
   finalAmount    Float // Final amount charged after discount
-  isRefundable   Boolean         @default(false) // Track if payment is refundable
-  refundedAmount Float           @default(0.0) // If refunded, record amount
+  isRefundable   Boolean       @default(false) // Track if payment is refundable
+  refundedAmount Float         @default(0.0) // If refunded, record amount
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  user             User              @relation(fields: [userId], references: [id])
-  subscription     Subscription?     @relation(fields: [subscriptionId], references: [id])
-  userTransactions UserTransaction[]
+  user            User             @relation(fields: [userId], references: [id])
+  subscription    Subscription?    @relation(fields: [subscriptionId], references: [id])
+  userTransaction UserTransaction?
 
   @@map("payments")
 }

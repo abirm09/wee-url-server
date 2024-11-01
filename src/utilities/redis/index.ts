@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SubscriptionType } from "@prisma/client";
 import { RedisClient } from "../../shared/redis";
 
 const getUserCache = async (userId: string) => {
@@ -26,6 +27,27 @@ const deleteDeviceCache = async (tokenId: string) => {
   return await RedisClient.del(`device:${tokenId}`);
 };
 
+const getSubscriptionPlanCache = async (subscriptionPlan: SubscriptionType) => {
+  return await RedisClient.get(`subscriptionPlan:${subscriptionPlan}`);
+};
+
+const setSubscriptionPlanCache = async (
+  subscriptionPlan: SubscriptionType,
+  data: any
+) => {
+  return await RedisClient.setEx(
+    `subscriptionPlan:${subscriptionPlan}`,
+    864000,
+    data
+  );
+};
+
+const deleteSubscriptionPlanCache = async (
+  subscriptionPlan: SubscriptionType
+) => {
+  return await RedisClient.del(`subscriptionPlan:${subscriptionPlan}`);
+};
+
 export const RedisUtils = {
   getUserCache,
   setUserCache,
@@ -33,4 +55,7 @@ export const RedisUtils = {
   getDeviceCache,
   setDeviceCache,
   deleteDeviceCache,
+  getSubscriptionPlanCache,
+  setSubscriptionPlanCache,
+  deleteSubscriptionPlanCache,
 };

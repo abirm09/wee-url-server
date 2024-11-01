@@ -6,6 +6,7 @@ import config from "../../../../config";
 import ApiError from "../../../../errors/ApiError";
 import { TJWTPayload } from "../../../../types/jwt/payload";
 import deleteImageFromCloudinary from "../../../../utilities/cloudinary/deleteImageFromCloudinary";
+import { RedisUtils } from "../../../../utilities/redis";
 import { UserUtil } from "./user.util";
 
 /**
@@ -45,6 +46,26 @@ const createIntoDB = async (payload: User) => {
     };
 
     const user = await tx.user.create({ data: userData });
+
+    let freSubscriptionPlan = await RedisUtils.getSubscriptionPlanCache("free");
+
+    if (!freSubscriptionPlan) {
+      freSubscriptionPlan = await tx.subscriptionPlan.findUnique({
+        where: { type: "free" },
+      });
+      if (freSubscriptionPlan) {
+        await RedisUtils.setSubscriptionPlanCache("free", freSubscriptionPlan);
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const subscriptionData: any = {
+      userId: user.id,
+      planId: freSubscriptionPlan.id,
+    };
+    await tx.subscription.create({
+      data: subscriptionData,
+    });
 
     // Create user profile
     await tx.profile.create({
@@ -110,8 +131,10 @@ const updateUserIntoDB = async (
   user: TJWTPayload
 ) => {
   return prisma.$transaction(async (tx) => {
+    const findUser = await RedisUtils.getUserCache(user.userId);
+
     const userId = user.userId;
-    const currentEmail = user.user?.email;
+    const currentEmail = findUser?.email;
 
     // Prepare modified user data
     const modifiedUserData = {

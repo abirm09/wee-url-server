@@ -73,6 +73,12 @@ const envVarsZodSchema = z.object({
   TEST_ADMIN_PASSWORD: z.string().optional(),
   TEST_ADMIN_EMAIL: z.string().optional(),
   REDIS_URL: z.string({ required_error: "REDIS_URL is required" }),
+  STRIPE_PUBLISHABLE_KEY: z.string({
+    required_error: "STRIPE_PUBLISHABLE_KEY is required",
+  }),
+  STRIPE_SECRET_KEY: z.string({
+    required_error: "STRIPE_SECRET_KEY is required",
+  }),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -113,4 +119,8 @@ export default {
     refresh_token: String(envVars.TEST_ADMIN_REFRESH_TOKEN),
   },
   redis_url: envVars.REDIS_URL,
+  stripe: {
+    stripe_publishable_key: envVars.STRIPE_PUBLISHABLE_KEY,
+    stripe_secret_key: envVars.STRIPE_SECRET_KEY,
+  },
 };
