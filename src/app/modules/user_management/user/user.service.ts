@@ -1,11 +1,11 @@
 import { Profile, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
-import { prisma } from "../../../app";
-import config from "../../../config";
-import ApiError from "../../../errors/ApiError";
-import { TJWTPayload } from "../../../types/jwt/payload";
-import deleteImageFromCloudinary from "../../../utilities/cloudinary/deleteImageFromCloudinary";
+import { prisma } from "../../../../app";
+import config from "../../../../config";
+import ApiError from "../../../../errors/ApiError";
+import { TJWTPayload } from "../../../../types/jwt/payload";
+import deleteImageFromCloudinary from "../../../../utilities/cloudinary/deleteImageFromCloudinary";
 import { UserUtil } from "./user.util";
 
 /**

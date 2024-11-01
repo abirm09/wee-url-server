@@ -17,7 +17,7 @@ const bootstrap = async () => {
   const exitHandler = (error: unknown, errorType: string) => {
     if (server) {
       server.close(() => {
-        logger.console.info(errorType, error);
+        logger.console.error(errorType, error);
         process.exit(1);
       });
     } else {
@@ -26,7 +26,7 @@ const bootstrap = async () => {
   };
 
   const unexpectedErrorHandler = (error: unknown, errorType: string) => {
-    logger.console.info(error);
+    logger.console.error(error);
     exitHandler(error, errorType);
   };
 
@@ -40,7 +40,7 @@ const bootstrap = async () => {
   process.on("unhandledRejection", unhandledRejection);
 
   process.on("SIGTERM", () => {
-    logger.console.info("SIGTERM received");
+    logger.console.error("SIGTERM received");
     if (server) {
       server.close();
     }

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { upload } from "../../../config/multer";
-import authGuard from "../../middlewares/authGuard";
-import rateLimit from "../../middlewares/rateLimit";
-import validateRequest from "../../middlewares/validateRequest";
+import { upload } from "../../../../config/multer";
+import authGuard from "../../../middlewares/authGuard";
+import rateLimit from "../../../middlewares/rateLimit";
+import validateRequest from "../../../middlewares/validateRequest";
 import { UserController } from "./user.controller";
 import { UserMiddlewares } from "./user.middlewares";
 import { UserValidations } from "./user.validations";

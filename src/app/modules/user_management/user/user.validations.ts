@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { passwordZodSchema } from "../../../validations/password.Validation";
+import { passwordZodSchema } from "../../../../validations/password.Validation";
 
 const create = z.object({
   body: z.object({
