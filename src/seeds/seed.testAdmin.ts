@@ -42,7 +42,7 @@ const main = async () => {
 };
 
 main()
-  .catch((err) => logger.console.info(err))
+  .catch((err) => logger.console.error(err))
   .finally(async () => {
     await prisma.$disconnect();
   });

@@ -10,7 +10,6 @@ import { notFoundHandler } from "./app/middlewares/notFoundHandler";
 import userAgent from "./app/middlewares/userAgent";
 import router from "./app/routes";
 import config from "./config";
-
 // Create an instance of PrismaClient
 export const prisma = new PrismaClient();
 
