@@ -79,6 +79,9 @@ const envVarsZodSchema = z.object({
   STRIPE_SECRET_KEY: z.string({
     required_error: "STRIPE_SECRET_KEY is required",
   }),
+  IP_INFO_TOKEN: z.string({
+    required_error: "IP_INFO_TOKEN is required",
+  }),
 });
 
 const envVars = envVarsZodSchema.parse(process.env);
@@ -122,5 +125,8 @@ export default {
   stripe: {
     stripe_publishable_key: envVars.STRIPE_PUBLISHABLE_KEY,
     stripe_secret_key: envVars.STRIPE_SECRET_KEY,
+  },
+  ip_info: {
+    token: envVars.IP_INFO_TOKEN,
   },
 };

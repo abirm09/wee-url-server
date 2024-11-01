@@ -8,10 +8,10 @@ import { AuthService } from "./auth.service";
 
 const login = catchAsync(async (req: Request, res: Response) => {
   const body = req.body;
-
+  const userAgent = req.headers["user-agent"];
   const { accessToken, refreshToken } = await AuthService.login(
     body,
-    req.userAgent,
+    userAgent,
     req.userIp
   );
 

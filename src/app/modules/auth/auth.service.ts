@@ -11,8 +11,8 @@ import ApiError from "../../../errors/ApiError";
 import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
 // import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
+import { ipInFo } from "../../../types/ipInfo/ipInfo";
 import { TJWTPayload } from "../../../types/jwt/payload";
-import TUserAgent from "../../../types/userAgent";
 import isValidUser from "../../helper/isValidUser";
 // import { AuthHelper } from "./auth.helper";
 
@@ -32,11 +32,7 @@ import isValidUser from "../../helper/isValidUser";
  * which the login
  * @returns The `login` function is returning an object containing `accessToken` and `refreshToken`.
  */
-const login = async (
-  payload: User,
-  userAgent?: TUserAgent,
-  userIp?: string
-) => {
+const login = async (payload: User, userAgent?: string, userIp?: string) => {
   return await prisma.$transaction(async (tx) => {
     const user = await isValidUser(
       tx,
@@ -75,18 +71,25 @@ const login = async (
       expiresIn: config.access_token.expires_in,
     });
 
+    let ipInFo;
+    try {
+      ipInFo = await fetch(
+        `https://ipinfo.io/${userIp}?token=${config.ip_info.token}`
+      );
+      ipInFo = (await ipInFo.json()) as ipInFo;
+
+      // eslint-disable-next-line no-empty
+    } finally {
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const loggedInDeviceData: any = {
       tokenId,
       userId: user.id,
       ip: userIp,
-      os:
-        `${userAgent?.os?.name ? userAgent?.os?.name + " " : ""}${userAgent?.os?.version || ""}` ||
-        null,
-      platform: userAgent?.device?.type,
-      browser: userAgent?.browser?.name,
-      city: null,
-      country: null,
+      userAgent,
+      city: ipInFo.city,
+      country: ipInFo.country,
       expiresAt: getDateCustomDaysFromNow(config.refresh_token.expires_in),
     };
 
