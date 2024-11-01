@@ -183,6 +183,7 @@ const updateUserIntoDB = async (
         },
       });
     }
+    await RedisUtils.deleteUserCache(userId);
   });
 };
 

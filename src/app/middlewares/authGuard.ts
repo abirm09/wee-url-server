@@ -8,23 +8,17 @@ import ApiError from "../../errors/ApiError";
 import { TJWTPayload } from "../../types/jwt/payload";
 import { RedisUtils } from "../../utilities/redis";
 
-/**
- * The `authGuard` function is a middleware in TypeScript that performs various authentication and
- * authorization checks before allowing access to certain routes.
- * @param  - The `authGuard` function is a middleware function used for authentication and
- * authorization in an Express application. It takes in an object as its parameter with the following
- * optional properties:
- */
-
 const authGuard =
   ({
     requiredRoles,
     validateMaxDeviceLimit = true,
     validateIsEmailVerified = true,
+    validateIsNeedsPasswordChange = true,
   }: {
     requiredRoles?: UsersRole[];
     validateMaxDeviceLimit?: boolean;
     validateIsEmailVerified?: boolean;
+    validateIsNeedsPasswordChange?: boolean;
   }) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -37,19 +31,21 @@ const authGuard =
       }
       const token = authHeader.split(" ")[1];
 
-      let payload;
+      let payload: TJWTPayload;
       try {
         payload = jwt.verify(token, config.access_token.secret) as TJWTPayload;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        const error = err as Error;
-        if (error.name === "TokenExpiredError") {
-          throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication failed.");
-        }
         throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication failed.");
       }
 
-      let user = await RedisUtils.getUserCache(payload.userId);
+      // Attempt to retrieve user and device from cache
+      let [user, device] = await Promise.all([
+        RedisUtils.getUserCache(payload.userId),
+        RedisUtils.getDeviceCache(payload.tokenId),
+      ]);
 
+      // Retrieve from database if not cached
       if (!user) {
         user = await prisma.user.findUnique({
           where: { id: payload.userId },
@@ -61,13 +57,10 @@ const authGuard =
             email: true,
             loggedInDevices: {
               where: { tokenId: payload.tokenId },
-              select: {
-                isBlocked: true,
-              },
+              select: { isBlocked: true },
             },
           },
         });
-
         if (user)
           await RedisUtils.setUserCache(payload.userId, {
             ...user,
@@ -75,57 +68,66 @@ const authGuard =
           });
       }
 
-      // If no user exists
+      // Check if user exists and validate status
       if (!user) throw new ApiError(httpStatus.BAD_REQUEST, "No user found.");
-
-      // Check if the user has been banned
       if (user.status === "banned")
         throw new ApiError(httpStatus.FORBIDDEN, "You have been banned!");
 
-      // Retrieve device from cache
-      let device = await RedisUtils.getDeviceCache(payload.tokenId);
-
+      // Retrieve device details if not cached
+      if (!device && user.loggedInDevices.length) {
+        device = { isBlocked: user.loggedInDevices[0].isBlocked };
+        await RedisUtils.setDeviceCache(payload.tokenId, device);
+      }
       if (!device) {
-        const loggedInDevice = (user?.loggedInDevices || [])[0];
+        const loggedInDevice = await prisma.loggedInDevice.findUnique({
+          where: { tokenId: payload.tokenId },
+          select: { isBlocked: true },
+        });
         device = loggedInDevice
           ? { isBlocked: loggedInDevice.isBlocked }
           : null;
         if (device) await RedisUtils.setDeviceCache(payload.tokenId, device);
       }
 
-      if (!device || device.isBlocked === true)
+      // Device validation
+      if (!device || device.isBlocked) {
         throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized");
+      }
 
-      // Validate user requirements as before
-      if (validateIsEmailVerified && user.isEmailVerified === false)
+      // Validate email verification and password change requirement
+      if (validateIsEmailVerified && !user.isEmailVerified) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
           "Please verify your email address"
         );
-      if (user.needsPasswordChange)
+      }
+
+      // CHeck if needs password change
+      if (validateIsNeedsPasswordChange && user.needsPasswordChange) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
           "Please change your password"
         );
+      }
 
-      // Check if user reached max login device limit
-      if (validateMaxDeviceLimit && user?.loggedInDevices?.length > 4)
+      // Validate max device limit
+      if (validateMaxDeviceLimit && user.loggedInDevices.length > 4) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
           "Too many devices logged in."
         );
+      }
 
-      // Check roles and permissions
-      if (user.role !== "superAdmin") {
-        if (requiredRoles?.length) {
-          if (!requiredRoles.includes(user?.role)) {
-            throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
-          }
-        }
+      // Check role permissions
+      if (
+        requiredRoles?.length &&
+        user.role !== "superAdmin" &&
+        !requiredRoles.includes(user.role)
+      ) {
+        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
       }
 
       req.user = payload;
-
       next();
     } catch (error) {
       next(error);

@@ -9,12 +9,13 @@ import { prisma } from "../../../app";
 import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
-// import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
+import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
 import { ipInFo } from "../../../types/ipInfo/ipInfo";
 import { TJWTPayload } from "../../../types/jwt/payload";
+import { RedisUtils } from "../../../utilities/redis";
 import isValidUser from "../../helper/isValidUser";
-// import { AuthHelper } from "./auth.helper";
+import { AuthHelper } from "./auth.helper";
 
 /**
  * The login function validates user credentials, generates access and refresh tokens, and logs in the
@@ -144,6 +145,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
       });
 
       // Generate a new access token
+      await RedisUtils.deleteUserCache(userId);
       return jwt.sign({ userId, role, tokenId }, config.access_token.secret, {
         expiresIn: config.access_token.expires_in,
       });
@@ -222,11 +224,11 @@ const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
       specialChars: false,
     });
 
-    // await sendMailWithNodeMailer({
-    //   to: [user?.email],
-    //   subject: "Verify Your Email for WeeURL Account",
-    //   html: AuthHelper.OTPEmailTemplate({ userName: user.fullName, otp }),
-    // });
+    await sendMailWithNodeMailer({
+      to: [user?.email],
+      subject: "Verify Your Email for WeeURL Account",
+      html: AuthHelper.OTPEmailTemplate({ userName: user.fullName, otp }),
+    });
 
     await tx.emailVerificationOTP.create({
       data: { otp, userId: payload.userId },
@@ -283,6 +285,7 @@ const verifyOtpFromDB = async (otp: string, user: TJWTPayload) => {
         emailVerifiedAt: new Date(),
       },
     });
+    await RedisUtils.deleteUserCache(user.userId);
   });
 };
 
