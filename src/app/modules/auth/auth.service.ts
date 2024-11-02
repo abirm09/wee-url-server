@@ -11,7 +11,7 @@ import ApiError from "../../../errors/ApiError";
 import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
 import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
-import { ipInFo } from "../../../types/ipInfo/ipInfo";
+import { ipInFo } from "../../../types/ip_info/ipInfo";
 import { TJWTPayload } from "../../../types/jwt/payload";
 import { RedisUtils } from "../../../utilities/redis";
 import isValidUser from "../../helper/isValidUser";
