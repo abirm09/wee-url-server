@@ -84,9 +84,7 @@ model LoggedInDevice {
   userId     String
   user       User      @relation(fields: [userId], references: [id])
   ip         String?
-  os         String?
-  platform   String?
-  browser    String?
+  userAgent  String?
   city       String?
   country    String?
   lastUsedAt DateTime? @default(now())

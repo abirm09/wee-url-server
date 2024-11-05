@@ -7,7 +7,6 @@ import helmet from "helmet";
 import morgan from "morgan";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
-import userAgent from "./app/middlewares/userAgent";
 import router from "./app/routes";
 import config from "./config";
 // Create an instance of PrismaClient
@@ -39,7 +38,7 @@ export const createApp = (): Application => {
     app.use(morgan("dev"));
   }
 
-  app.get("/", userAgent, (req, res) => {
+  app.get("/", (req, res) => {
     res.status(301).redirect(config.client_side_urls[0]);
   });
 

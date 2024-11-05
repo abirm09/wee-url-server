@@ -8,15 +8,15 @@ import { AuthService } from "./auth.service";
 
 const login = catchAsync(async (req: Request, res: Response) => {
   const body = req.body;
-
+  const userAgent = req.headers["user-agent"];
   const { accessToken, refreshToken } = await AuthService.login(
     body,
-    req.userAgent,
+    userAgent,
     req.userIp
   );
 
   setCookie(res, {
-    cookieName: "we_url_t",
+    cookieName: "_wee_url",
     value: refreshToken,
     cookieOption: { maxAge: Number(config.refresh_token.cookie_expires_in) },
   });
@@ -29,7 +29,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
 });
 
 const accessToken = catchAsync(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies["we_url_t"];
+  const refreshToken = req.cookies["_wee_url"];
 
   const token = await AuthService.accessToken(refreshToken, res);
 

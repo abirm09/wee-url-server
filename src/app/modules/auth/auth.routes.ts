@@ -1,7 +1,6 @@
 import { Router } from "express";
 import authGuard from "../../middlewares/authGuard";
 import rateLimit from "../../middlewares/rateLimit";
-import userAgent from "../../middlewares/userAgent";
 import userIp from "../../middlewares/userIp";
 import validateRequest from "../../middlewares/validateRequest";
 import { AuthController } from "./auth.controller";
@@ -13,7 +12,6 @@ route.post(
   "/login",
   rateLimit(5),
   validateRequest(AuthValidations.login),
-  userAgent,
   userIp,
   AuthController.login
 );

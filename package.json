@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "A Link Shortener app",
   "main": "./dist/server.js",
+  "private": true,
   "repository": {
     "url": "https://github.com/abirm09/WeeURL-server"
   },
@@ -14,9 +15,9 @@
     "seed": "ts-node ./src/seeds",
     "build": "npx tsc",
     "prepare": "node .husky/install.mjs",
-    "postinstall": "npx prisma generate",
+    "postinstall": "node ./src/postinstall/index.mjs",
     "vercel-build": "npx prisma generate && npx prisma migrate deploy",
-    "test": "vitest"
+    "test": "node ./src/tests/index.mjs"
   },
   "lint-staged": {
     "*.{ts,json,md}": "prettier --write",
@@ -32,13 +33,14 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.7.5",
+    "@types/node": "^22.8.6",
     "@types/nodemailer": "^6.4.16",
     "@types/otp-generator": "^4.0.2",
     "@types/request-ip": "^0.0.41",
     "@types/supertest": "^6.0.2",
     "@types/ua-parser-js": "^0.7.39",
     "@types/uuid": "^10.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.11.0",
@@ -50,14 +52,14 @@
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.8.1",
+    "typescript-eslint": "^8.12.2",
     "vitest": "^2.1.4"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
-    "compression": "^1.7.4",
+    "compression": "^1.7.5",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -73,8 +75,8 @@
     "otp-generator": "^4.0.1",
     "redis": "^4.7.0",
     "request-ip": "^3.3.0",
-    "ua-parser-js": "^1.0.39",
-    "uuid": "^11.0.1",
+    "ua-parser-js": "^2.0.0-rc.1",
+    "uuid": "^11.0.2",
     "winston": "^3.15.0",
     "zod": "^3.23.8"
   }

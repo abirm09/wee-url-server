@@ -9,12 +9,13 @@ import { prisma } from "../../../app";
 import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
-// import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
+import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
+import { ipInFo } from "../../../types/ip_info/ipInfo";
 import { TJWTPayload } from "../../../types/jwt/payload";
-import TUserAgent from "../../../types/userAgent";
+import { RedisUtils } from "../../../utilities/redis";
 import isValidUser from "../../helper/isValidUser";
-// import { AuthHelper } from "./auth.helper";
+import { AuthHelper } from "./auth.helper";
 
 /**
  * The login function validates user credentials, generates access and refresh tokens, and logs in the
@@ -32,11 +33,7 @@ import isValidUser from "../../helper/isValidUser";
  * which the login
  * @returns The `login` function is returning an object containing `accessToken` and `refreshToken`.
  */
-const login = async (
-  payload: User,
-  userAgent?: TUserAgent,
-  userIp?: string
-) => {
+const login = async (payload: User, userAgent?: string, userIp?: string) => {
   return await prisma.$transaction(async (tx) => {
     const user = await isValidUser(
       tx,
@@ -75,18 +72,25 @@ const login = async (
       expiresIn: config.access_token.expires_in,
     });
 
+    let ipInFo;
+    try {
+      ipInFo = await fetch(
+        `https://ipinfo.io/${userIp}?token=${config.ip_info.token}`
+      );
+      ipInFo = (await ipInFo.json()) as ipInFo;
+
+      // eslint-disable-next-line no-empty
+    } finally {
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const loggedInDeviceData: any = {
       tokenId,
       userId: user.id,
       ip: userIp,
-      os:
-        `${userAgent?.os?.name ? userAgent?.os?.name + " " : ""}${userAgent?.os?.version || ""}` ||
-        null,
-      platform: userAgent?.device?.type,
-      browser: userAgent?.browser?.name,
-      city: null,
-      country: null,
+      userAgent,
+      city: ipInFo.city,
+      country: ipInFo.country,
       expiresAt: getDateCustomDaysFromNow(config.refresh_token.expires_in),
     };
 
@@ -141,6 +145,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
       });
 
       // Generate a new access token
+      await RedisUtils.deleteUserCache(userId);
       return jwt.sign({ userId, role, tokenId }, config.access_token.secret, {
         expiresIn: config.access_token.expires_in,
       });
@@ -148,7 +153,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
   } catch (error) {
     // Clear the refresh token cookie upon error
     setCookie(res, {
-      cookieName: "we_url_t",
+      cookieName: "_wee_url",
       value: refreshToken,
       cookieOption: { maxAge: 0 },
     });
@@ -219,11 +224,11 @@ const createVerifyEmailRequestIntoDB = async (payload: TJWTPayload) => {
       specialChars: false,
     });
 
-    // await sendMailWithNodeMailer({
-    //   to: [user?.email],
-    //   subject: "Verify Your Email for WeeURL Account",
-    //   html: AuthHelper.OTPEmailTemplate({ userName: user.fullName, otp }),
-    // });
+    await sendMailWithNodeMailer({
+      to: [user?.email],
+      subject: "Verify Your Email for WeeURL Account",
+      html: AuthHelper.OTPEmailTemplate({ userName: user.fullName, otp }),
+    });
 
     await tx.emailVerificationOTP.create({
       data: { otp, userId: payload.userId },
@@ -280,6 +285,7 @@ const verifyOtpFromDB = async (otp: string, user: TJWTPayload) => {
         emailVerifiedAt: new Date(),
       },
     });
+    await RedisUtils.deleteUserCache(user.userId);
   });
 };
 

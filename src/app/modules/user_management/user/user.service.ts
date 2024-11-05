@@ -47,24 +47,34 @@ const createIntoDB = async (payload: User) => {
 
     const user = await tx.user.create({ data: userData });
 
-    let freSubscriptionPlan = await RedisUtils.getSubscriptionPlanCache("free");
+    let freeSubscriptionPlan =
+      await RedisUtils.getSubscriptionPlanCache("free");
 
-    if (!freSubscriptionPlan) {
-      freSubscriptionPlan = await tx.subscriptionPlan.findUnique({
+    if (!freeSubscriptionPlan) {
+      freeSubscriptionPlan = await tx.subscriptionPlan.findUnique({
         where: { type: "free" },
       });
-      if (freSubscriptionPlan) {
-        await RedisUtils.setSubscriptionPlanCache("free", freSubscriptionPlan);
+      if (freeSubscriptionPlan) {
+        await RedisUtils.setSubscriptionPlanCache("free", freeSubscriptionPlan);
       }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const subscriptionData: any = {
       userId: user.id,
-      planId: freSubscriptionPlan.id,
+      planId: freeSubscriptionPlan.id,
     };
     await tx.subscription.create({
       data: subscriptionData,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userCreditData: any = {
+      userId: user.id,
+    };
+
+    await tx.userCredit.create({
+      data: userCreditData,
     });
 
     // Create user profile
@@ -173,6 +183,7 @@ const updateUserIntoDB = async (
         },
       });
     }
+    await RedisUtils.deleteUserCache(userId);
   });
 };
 
