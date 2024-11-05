@@ -16,7 +16,6 @@
     "build": "npx tsc",
     "prepare": "node .husky/install.mjs",
     "postinstall": "node ./src/postinstall/index.mjs",
-    "vercel-build": "npx prisma generate && npx prisma migrate deploy",
     "test": "node ./src/tests/index.mjs"
   },
   "lint-staged": {
