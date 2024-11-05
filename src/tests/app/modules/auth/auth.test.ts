@@ -2,13 +2,46 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp, prisma } from "../../../../app";
 import config from "../../../../config";
+import { RedisClient } from "../../../../shared/redis";
 
 describe("Auth route", () => {
   let app = createApp();
 
+  let refreshToken = "";
   beforeAll(async () => {
     app = createApp(); // Create the app instance before running tests
+    await RedisClient.connect();
     await prisma.$connect(); // Connect to the database, if necessary
+
+    // Perform a login request to get access and refresh tokens
+    const loginResponse = await request(app).post("/api/v1/auth/login").send({
+      email: config.test_admin.email,
+      password: config.test_admin.password,
+    });
+
+    expect(loginResponse.status).toBe(200);
+    expect(loginResponse.body).toEqual({
+      statusCode: 200,
+      success: true,
+      message: "Log in successful",
+      data: expect.objectContaining({
+        token: expect.stringMatching(
+          /^[A-Za-z0-9\-_.]+\.[A-Za-z0-9\-_.]+\.[A-Za-z0-9\-_.]+$/
+        ),
+      }),
+    });
+    // Get the refresh token from the 'set-cookie' header
+    const cookies = loginResponse.headers["set-cookie"];
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    refreshToken = cookieArray.find((cookie) => cookie.startsWith("_wee_url="));
+    const refreshTokenCookie = cookieArray.find((cookie) =>
+      cookie.startsWith("_wee_url=")
+    );
+    refreshToken = refreshTokenCookie
+      ? refreshTokenCookie.split(";")[0].split("=")[1]
+      : null;
+
+    expect(refreshToken).toBeDefined();
   });
 
   afterAll(async () => {
@@ -16,25 +49,6 @@ describe("Auth route", () => {
   });
 
   describe("POST /auth/login", () => {
-    it("should login a user", async () => {
-      const response = await request(app).post("/api/v1/auth/login").send({
-        email: config.test_admin.email,
-        password: config.test_admin.password,
-      });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        statusCode: 200,
-        success: true,
-        message: "Log in successful",
-        data: expect.objectContaining({
-          token: expect.stringMatching(
-            /^[A-Za-z0-9\-_.]+\.[A-Za-z0-9\-_.]+\.[A-Za-z0-9\-_.]+$/
-          ),
-        }),
-      });
-    });
-
     it("should return 400 for invalid credentials", async () => {
       const response = await request(app).post("/api/v1/auth/login").send({
         email: config.test_admin.email,
@@ -60,7 +74,7 @@ describe("Auth route", () => {
       const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
 
       const refreshTokenCookie = cookieArray.find((cookie) =>
-        cookie.startsWith("we_url_t=")
+        cookie.startsWith("_wee_url=")
       );
 
       expect(refreshTokenCookie).toBeDefined(); // Ensure the refresh token cookie is set
@@ -69,11 +83,10 @@ describe("Auth route", () => {
 
   //   Access token routes
   describe("GET /auth/access-token", () => {
-    it("should get access token using refresh token from cookie", async () => {
-      const refreshToken = config.test_admin.refresh_token;
+    it("should get access token using refresh token", async () => {
       const response = await request(app)
         .get("/api/v1/auth/access-token")
-        .set("Cookie", `we_url_t=${refreshToken}`);
+        .set("Cookie", `_wee_url=${refreshToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -87,7 +100,5 @@ describe("Auth route", () => {
         },
       });
     });
-
-    // it("should return 400 for invalid request", async () => {});
   });
 });

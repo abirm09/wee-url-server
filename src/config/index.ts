@@ -69,7 +69,6 @@ const envVarsZodSchema = z.object({
       required_error: "MAX_DEVICE_LOGIN_LIMIT is required",
     })
     .default("4"),
-  TEST_ADMIN_REFRESH_TOKEN: z.string().optional(),
   TEST_ADMIN_PASSWORD: z.string().optional(),
   TEST_ADMIN_EMAIL: z.string().optional(),
   REDIS_URL: z.string({ required_error: "REDIS_URL is required" }),
@@ -119,7 +118,6 @@ export default {
   test_admin: {
     email: String(envVars.TEST_ADMIN_EMAIL),
     password: String(envVars.TEST_ADMIN_PASSWORD),
-    refresh_token: String(envVars.TEST_ADMIN_REFRESH_TOKEN),
   },
   redis_url: envVars.REDIS_URL,
   stripe: {

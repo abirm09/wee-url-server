@@ -11,7 +11,7 @@ const login = z.object({
 
 const accessToken = z.object({
   cookies: z.object({
-    we_url_t: z.string({ required_error: "Invalid request" }),
+    _wee_url: z.string({ required_error: "Invalid request" }),
   }),
 });
 

@@ -74,7 +74,7 @@ const authGuard =
         throw new ApiError(httpStatus.FORBIDDEN, "You have been banned!");
 
       // Retrieve device details if not cached
-      if (!device && user.loggedInDevices.length) {
+      if (!device && user?.loggedInDevices?.length) {
         device = { isBlocked: user.loggedInDevices[0].isBlocked };
         await RedisUtils.setDeviceCache(payload.tokenId, device);
       }
@@ -111,7 +111,7 @@ const authGuard =
       }
 
       // Validate max device limit
-      if (validateMaxDeviceLimit && user.loggedInDevices.length > 4) {
+      if (validateMaxDeviceLimit && user?.loggedInDevices?.length > 4) {
         throw new ApiError(
           httpStatus.BAD_REQUEST,
           "Too many devices logged in."

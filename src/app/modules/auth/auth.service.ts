@@ -153,7 +153,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
   } catch (error) {
     // Clear the refresh token cookie upon error
     setCookie(res, {
-      cookieName: "we_url_t",
+      cookieName: "_wee_url",
       value: refreshToken,
       cookieOption: { maxAge: 0 },
     });
