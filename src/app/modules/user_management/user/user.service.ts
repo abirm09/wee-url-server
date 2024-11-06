@@ -7,7 +7,7 @@ import ApiError from "../../../../errors/ApiError";
 import { TJWTPayload } from "../../../../types/jwt/payload";
 import deleteImageFromCloudinary from "../../../../utilities/cloudinary/deleteImageFromCloudinary";
 import { RedisUtils } from "../../../../utilities/redis";
-import { UserUtil } from "./user.util";
+import { UserHelper } from "./user.helper";
 
 /**
  * The function `createIntoDB` asynchronously creates a new user in a database with hashed password and
@@ -23,7 +23,7 @@ const createIntoDB = async (payload: User) => {
   );
 
   await prisma.$transaction(async (tx) => {
-    const userId = UserUtil.createId();
+    const userId = UserHelper.createId();
     const existingUser = await tx.user.findUnique({
       where: { email: payload.email },
     });
