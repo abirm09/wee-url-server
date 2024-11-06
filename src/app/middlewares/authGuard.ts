@@ -6,7 +6,7 @@ import { prisma } from "../../app";
 import config from "../../config";
 import ApiError from "../../errors/ApiError";
 import { TJWTPayload } from "../../types/jwt/payload";
-import { RedisUtils } from "../../utilities/redis";
+import { CacheManager } from "../../utilities/redis";
 
 const authGuard =
   ({
@@ -41,8 +41,8 @@ const authGuard =
 
       // Attempt to retrieve user and device from cache
       let [user, device] = await Promise.all([
-        RedisUtils.getUserCache(payload.userId),
-        RedisUtils.getDeviceCache(payload.tokenId),
+        CacheManager.getUserCache(payload.userId),
+        CacheManager.getDeviceCache(payload.tokenId),
       ]);
 
       // Retrieve from database if not cached
@@ -62,7 +62,7 @@ const authGuard =
           },
         });
         if (user)
-          await RedisUtils.setUserCache(payload.userId, {
+          await CacheManager.setUserCache(payload.userId, {
             ...user,
             loggedInDevices: undefined,
           });
@@ -76,7 +76,7 @@ const authGuard =
       // Retrieve device details if not cached
       if (!device && user?.loggedInDevices?.length) {
         device = { isBlocked: user.loggedInDevices[0].isBlocked };
-        await RedisUtils.setDeviceCache(payload.tokenId, device);
+        await CacheManager.setDeviceCache(payload.tokenId, device);
       }
       if (!device) {
         const loggedInDevice = await prisma.loggedInDevice.findUnique({
@@ -86,7 +86,7 @@ const authGuard =
         device = loggedInDevice
           ? { isBlocked: loggedInDevice.isBlocked }
           : null;
-        if (device) await RedisUtils.setDeviceCache(payload.tokenId, device);
+        if (device) await CacheManager.setDeviceCache(payload.tokenId, device);
       }
 
       // Device validation

@@ -13,7 +13,7 @@ import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
 import { ipInFo } from "../../../types/ip_info/ipInfo";
 import { TJWTPayload } from "../../../types/jwt/payload";
-import { RedisUtils } from "../../../utilities/redis";
+import { CacheManager } from "../../../utilities/redis";
 import isValidUser from "../../helper/isValidUser";
 import { AuthHelper } from "./auth.helper";
 
@@ -145,7 +145,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
       });
 
       // Generate a new access token
-      await RedisUtils.deleteUserCache(userId);
+      await CacheManager.deleteUserCache(userId);
       return jwt.sign({ userId, role, tokenId }, config.access_token.secret, {
         expiresIn: config.access_token.expires_in,
       });
@@ -285,7 +285,7 @@ const verifyOtpFromDB = async (otp: string, user: TJWTPayload) => {
         emailVerifiedAt: new Date(),
       },
     });
-    await RedisUtils.deleteUserCache(user.userId);
+    await CacheManager.deleteUserCache(user.userId);
   });
 };
 
