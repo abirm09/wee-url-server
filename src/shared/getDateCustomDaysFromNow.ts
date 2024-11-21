@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import ApiError from "../errors/ApiError";
 
-const getDateCustomDaysFromNow = (day: string) => {
+const GetDateCustomDaysFromNow = (day: string) => {
   const match = day.match(/^(\d+)\s*d$/);
 
   const dayInNumber = match ? parseInt(match[1], 10) : 0;
@@ -12,7 +12,7 @@ const getDateCustomDaysFromNow = (day: string) => {
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + dayInNumber);
 
-  return currentDate.toISOString();
+  return currentDate;
 };
 
-export default getDateCustomDaysFromNow;
+export default GetDateCustomDaysFromNow;

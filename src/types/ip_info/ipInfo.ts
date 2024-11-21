@@ -1,10 +1,10 @@
-export type ipInFo = {
-  ip: string;
-  city: string;
-  region: string;
-  country: string;
-  loc: string;
-  org: string;
-  postal: string;
-  timezone: string;
-};
+export type TIpInFo = {
+  ip: string | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  loc: string | null;
+  org: string | null;
+  postal: string | null;
+  timezone: string | null;
+} | null;

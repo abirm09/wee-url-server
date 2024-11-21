@@ -8,29 +8,29 @@ import { v4 as uuid } from "uuid";
 import { prisma } from "../../../app";
 import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
-import getDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
+import GetDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
 import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
 import setCookie from "../../../shared/setCookie";
-import { ipInFo } from "../../../types/ip_info/ipInfo";
 import { TJWTPayload } from "../../../types/jwt/payload";
+import { IPInfo } from "../../../utilities/ip_info";
 import { CacheManager } from "../../../utilities/redis";
 import isValidUser from "../../helper/isValidUser";
+import { LoggedInDeviceInput } from "../logged_in_device/loggedInDevice.types";
 import { AuthHelper } from "./auth.helper";
 
 /**
- * The login function validates user credentials, generates access and refresh tokens, and logs in the
- * user's device information.
- * @param {User} payload - The `payload` parameter in the `login` function represents the user data
- * that is being passed to the function for authentication. It typically includes the user's email and
- * password.
- * @param {TUserAgent} [userAgent] - The `userAgent` parameter in the `login` function is used to pass
- * information about the user's device and browser. It is an optional parameter of type `TUserAgent`.
- * This parameter can contain details such as the operating system, browser, device type, etc., of the
- * user who is
+ * The login function handles user authentication by verifying credentials, generating access and
+ * refresh tokens, and storing device information upon successful login.
+ * @param {User} payload - The `payload` parameter in the `login` function represents the user
+ * credentials that are used for authentication. It typically includes the user's email and password.
+ * @param {string} [userAgent] - The `userAgent` parameter in the `login` function is used to pass the
+ * user agent string of the client's browser or device. This information can be helpful for tracking
+ * and identifying the type of device or browser used for the login request. It is an optional
+ * parameter, meaning it is not required
  * @param {string} [userIp] - The `userIp` parameter in the `login` function represents the IP address
- * of the user who is attempting to log in. This parameter is optional and can be used to track the IP
- * address of the user for security or logging purposes. It allows you to capture the IP address from
- * which the login
+ * of the user who is attempting to log in. It is used to track the location and other information
+ * related to the user's device for security and logging purposes. The IP address can help identify the
+ * geographical location of the user
  * @returns The `login` function is returning an object containing `accessToken` and `refreshToken`.
  */
 const login = async (payload: User, userAgent?: string, userIp?: string) => {
@@ -72,26 +72,19 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
       expiresIn: config.access_token.expires_in,
     });
 
-    let ipInFo;
-    try {
-      ipInFo = await fetch(
-        `https://ipinfo.io/${userIp}?token=${config.ip_info.token}`
-      );
-      ipInFo = (await ipInFo.json()) as ipInFo;
+    const ipInFo = await IPInfo(userIp);
 
-      // eslint-disable-next-line no-empty
-    } finally {
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const loggedInDeviceData: any = {
+    const loggedInDeviceData: LoggedInDeviceInput = {
       tokenId,
       userId: user.id,
-      ip: userIp,
-      userAgent,
-      city: ipInFo.city,
-      country: ipInFo.country,
-      expiresAt: getDateCustomDaysFromNow(config.refresh_token.expires_in),
+      ip: userIp || null,
+      userAgent: userAgent || null,
+      city: ipInFo?.city || null,
+      country: ipInFo?.country || null,
+      expiresAt: GetDateCustomDaysFromNow(config.refresh_token.expires_in),
+      isBlocked: false,
+      lastUsedAt: new Date(),
+      blockedAt: null,
     };
 
     await tx.loggedInDevice.create({ data: loggedInDeviceData });
