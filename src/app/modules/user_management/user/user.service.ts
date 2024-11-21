@@ -6,8 +6,8 @@ import config from "../../../../config";
 import ApiError from "../../../../errors/ApiError";
 import { TJWTPayload } from "../../../../types/jwt/payload";
 import deleteImageFromCloudinary from "../../../../utilities/cloudinary/deleteImageFromCloudinary";
-import { RedisUtils } from "../../../../utilities/redis";
-import { UserUtil } from "./user.util";
+import { CacheManager } from "../../../../utilities/redis";
+import { UserHelper } from "./user.helper";
 
 /**
  * The function `createIntoDB` asynchronously creates a new user in a database with hashed password and
@@ -23,7 +23,7 @@ const createIntoDB = async (payload: User) => {
   );
 
   await prisma.$transaction(async (tx) => {
-    const userId = UserUtil.createId();
+    const userId = UserHelper.createId();
     const existingUser = await tx.user.findUnique({
       where: { email: payload.email },
     });
@@ -48,14 +48,17 @@ const createIntoDB = async (payload: User) => {
     const user = await tx.user.create({ data: userData });
 
     let freeSubscriptionPlan =
-      await RedisUtils.getSubscriptionPlanCache("free");
+      await CacheManager.getSubscriptionPlanCache("free");
 
     if (!freeSubscriptionPlan) {
       freeSubscriptionPlan = await tx.subscriptionPlan.findUnique({
         where: { type: "free" },
       });
       if (freeSubscriptionPlan) {
-        await RedisUtils.setSubscriptionPlanCache("free", freeSubscriptionPlan);
+        await CacheManager.setSubscriptionPlanCache(
+          "free",
+          freeSubscriptionPlan
+        );
       }
     }
 
@@ -141,7 +144,7 @@ const updateUserIntoDB = async (
   user: TJWTPayload
 ) => {
   return prisma.$transaction(async (tx) => {
-    const findUser = await RedisUtils.getUserCache(user.userId);
+    const findUser = await CacheManager.getUserCache(user.userId);
 
     const userId = user.userId;
     const currentEmail = findUser?.email;
@@ -183,7 +186,7 @@ const updateUserIntoDB = async (
         },
       });
     }
-    await RedisUtils.deleteUserCache(userId);
+    await CacheManager.deleteUserCache(userId);
   });
 };
 

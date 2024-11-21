@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "./generated/client"
 }
 
 datasource db {
@@ -41,9 +40,8 @@ model User {
   loggedInDevices       LoggedInDevice[]
   subscriptions         Subscription[]
   userCredit            UserCredit?
-  userTransactions      UserTransaction[]
-  payments              Payment[]
   paymentMethods        PaymentMethod[]
+  subscriptionRequests  SubscriptionRequest[]
 
   @@map("users")
 }
@@ -159,8 +157,9 @@ model SubscriptionPlan {
   updatedAt DateTime @updatedAt
 
   // Relation to Users (Subscriptions)
-  subscriptions  Subscription[]
-  billingPeriods BillingPeriod[]
+  subscriptions        Subscription[]
+  billingPeriods       BillingPeriod[]
+  subscriptionRequests SubscriptionRequest[]
 
   @@map("subscription_plans")
 }
@@ -178,31 +177,11 @@ model BillingPeriod {
   periodType BillingType // Monthly or Yearly
   price      Float? // Price for the given period. The amount will be for 1 month
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  subscriptionRequests SubscriptionRequest[]
 
   @@map("billing_periods")
-}
-
-// User's subscription details
-
-model Subscription {
-  id          String           @id @default(uuid())
-  userId      String
-  planId      String
-  user        User             @relation(fields: [userId], references: [id])
-  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
-  startedAt   DateTime         @default(now())
-  expiresAt   DateTime? // Nullable for lifetime or free plans
-  isActive    Boolean          @default(true)
-  isAutoRenew Boolean          @default(false)
-
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  UserTransaction UserTransaction[]
-  payment         Payment?
-
-  @@map("subscriptions")
 }
 
 // User's credits
@@ -235,35 +214,70 @@ model Coupon {
   updatedAt DateTime @updatedAt
 
   // Relations
-  userTransactions UserTransaction[] // Track transactions where the coupon was applied
+  subscriptionRequests SubscriptionRequest[]
 
   @@map("coupons")
 }
 
-model UserTransaction {
-  id             String        @id @default(uuid())
-  userId         String
-  subscriptionId String? // Optional: Link to subscription
-  paymentId      String?       @unique // Link to the specific payment
-  user           User          @relation(fields: [userId], references: [id])
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
-  payment        Payment?      @relation(fields: [paymentId], references: [id])
-  couponId       String? // Coupon applied
-  coupon         Coupon?       @relation(fields: [couponId], references: [id])
+// User's subscription details
+enum SubscriptionRequestStatus {
+  pending
+  completed
+  expired
+  canceled
+}
 
-  originalCost Float // Cost before discount
+model SubscriptionRequest {
+  id                   String                    @id @default(uuid())
+  userId               String
+  planId               String
+  billingPeriodId      String
+  status               SubscriptionRequestStatus @default(pending)
+  couponId             String?
+  userNewCreditRemarks String?
 
-  usersCedit Float @default(0) // The amount from credit amount
-  newAmount  Float @default(0) // The amount that is taken new
+  originalCost           Float // Plan's original cost before the discount
+  discountAmount         Float? // Total discount amount
+  usedUserCredit         Float? // The amount from credit amount
+  remainingUserCredit    Float? // After cutting costs, if there are any available user credits
+  remainingPayableAmount Float? // The amount that will need to pay now
 
-  discountAmount Float // Discounted amount
+  finalCost Float
 
-  finalCost Float // Final cost after discount
+  stripeIntentId String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user          User             @relation(fields: [userId], references: [id])
+  plan          SubscriptionPlan @relation(fields: [planId], references: [id])
+  billingPeriod BillingPeriod    @relation(fields: [billingPeriodId], references: [id])
+  coupon        Coupon?          @relation(fields: [couponId], references: [code])
 
-  @@map("user_transactions")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  subscription Subscription?
+
+  @@map("subscription_requests")
+}
+
+model Subscription {
+  id          String    @id @default(uuid())
+  userId      String
+  planId      String
+  reqId       String?   @unique
+  paymentId   String?   @unique
+  startedAt   DateTime  @default(now())
+  expiresAt   DateTime? // Nullable for lifetime or free plans
+  isActive    Boolean   @default(true)
+  isAutoRenew Boolean   @default(false)
+
+  // Relations
+  user      User                 @relation(fields: [userId], references: [id])
+  plan      SubscriptionPlan     @relation(fields: [planId], references: [id])
+  request   SubscriptionRequest? @relation(fields: [reqId], references: [id])
+  payment   Payment?             @relation(fields: [paymentId], references: [id])
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@map("subscriptions")
 }
 
 // Payment
@@ -272,33 +286,21 @@ enum PaymentProvider {
   paypal
 }
 
-enum PaymentStatus {
-  pending
-  completed
-  failed
-  refunded
-}
-
 model Payment {
-  id             String        @id @default(uuid())
-  userId         String // The user making the payment
-  subscriptionId String?       @unique // provider       PaymentProvider // e.g., Stripe, PayPal
-  status         PaymentStatus @default(pending)
-  amount         Float // Payment amount
-  transactionId  String // Provider's unique transaction ID
-  paymentMethod  String? // e.g., 'credit_card', 'paypal_balance'
-  discountAmount Float         @default(0.0) // Amount discounted, if any
-  finalAmount    Float // Final amount charged after discount
-  isRefundable   Boolean       @default(false) // Track if payment is refundable
-  refundedAmount Float         @default(0.0) // If refunded, record amount
+  id     String @id @default(uuid())
+  userId String // The user making the payment
+
+  transactionId   String // Provider's unique transaction ID
+  paymentProvider PaymentProvider
+
+  cardBrand  String?
+  cardLast4  String?
+  receiptUrl String?
+
+  subscription Subscription?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  user            User             @relation(fields: [userId], references: [id])
-  subscription    Subscription?    @relation(fields: [subscriptionId], references: [id])
-  userTransaction UserTransaction?
 
   @@map("payments")
 }

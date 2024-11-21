@@ -12,6 +12,6 @@ const createId = () => {
   return userId.slice(0, 10);
 };
 
-export const UserUtil = {
+export const UserHelper = {
   createId,
 };

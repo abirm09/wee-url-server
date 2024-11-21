@@ -9,6 +9,7 @@ import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
 import router from "./app/routes";
 import config from "./config";
+import { WebhookRoutes } from "./web_hooks/routes";
 // Create an instance of PrismaClient
 export const prisma = new PrismaClient();
 
@@ -32,12 +33,17 @@ export const createApp = (): Application => {
   app.use(cors(corsOptions));
   app.use(cookieParser());
   app.use(helmet());
-  app.use(express.json());
   app.use(compression());
   if (config.env === "development") {
     app.use(morgan("dev"));
   }
 
+  // Webhooks
+  app.use("/webhook", express.raw({ type: "application/json" }), WebhookRoutes);
+
+  app.use(express.json());
+
+  // Root route
   app.get("/", (req, res) => {
     res.status(301).redirect(config.client_side_urls[0]);
   });

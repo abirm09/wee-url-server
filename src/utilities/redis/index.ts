@@ -48,7 +48,7 @@ const deleteSubscriptionPlanCache = async (
   return await RedisClient.del(`subscriptionPlan:${subscriptionPlan}`);
 };
 
-export const RedisUtils = {
+export const CacheManager = {
   getUserCache,
   setUserCache,
   deleteUserCache,

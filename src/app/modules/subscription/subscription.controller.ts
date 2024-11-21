@@ -4,14 +4,55 @@ import catchAsync from "../../../shared/catchAsync";
 import successResponse from "../../../shared/successResponse";
 import { SubscriptionService } from "./subscription.service";
 
-const createSubscription = catchAsync(async (req: Request, res: Response) => {
-  await SubscriptionService.createSubscriptionIntoDB();
+const calculateSubscriptionAmount = catchAsync(
+  async (req: Request, res: Response) => {
+    const { planId, billingPeriodId, coupon } = req.body;
+    const result = await SubscriptionService.calculateSubscriptionAmount(
+      planId,
+      billingPeriodId,
+      coupon,
+      req.user
+    );
+    successResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Retrieved subscription amount successfully.",
+      data: result,
+    });
+  }
+);
+
+const createSubscriptionRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const { planId, billingPeriodId, coupon } = req.body;
+    const result = await SubscriptionService.createSubscriptionRequestIntoDB(
+      planId,
+      billingPeriodId,
+      coupon,
+      req.user
+    );
+    successResponse(res, {
+      statusCode: httpStatus.CREATED,
+      message: "Subscription request created successfully.",
+      data: result,
+    });
+  }
+);
+
+const createStripeIntent = catchAsync(async (req: Request, res: Response) => {
+  const { requestId } = req.body;
+  const result = await SubscriptionService.createStripeIntentIntoDB(
+    requestId,
+    req.user
+  );
   successResponse(res, {
     statusCode: httpStatus.CREATED,
-    message: "Subscribed successfully",
+    message: "Stripe payment intent created successfully.",
+    data: result,
   });
 });
 
 export const SubscriptionController = {
-  createSubscription,
+  createStripeIntent,
+  createSubscriptionRequest,
+  calculateSubscriptionAmount,
 };
