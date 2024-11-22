@@ -1,3 +1,3 @@
-import parser from "ua-parser-js";
-type TUserAgent = parser.IResult;
+import DeviceDetector from "device-detector-js";
+type TUserAgent = DeviceDetector.DeviceDetectorResult | undefined;
 export default TUserAgent;

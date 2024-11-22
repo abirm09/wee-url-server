@@ -42,6 +42,7 @@ model User {
   userCredit            UserCredit?
   paymentMethods        PaymentMethod[]
   subscriptionRequests  SubscriptionRequest[]
+  urls                  Url[]
 
   @@map("users")
 }
@@ -303,4 +304,47 @@ model Payment {
   updatedAt DateTime @updatedAt
 
   @@map("payments")
+}
+
+// URL
+model Url {
+  id        String    @id @default(uuid())
+  shortCode String    @unique
+  fullUrl   String
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  isPrivate Boolean   @default(false)
+  password  String?
+  tags      String[]
+
+  userId String
+
+  // relations
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  urlMetrics UrlMetrics[]
+
+  @@index([shortCode, isActive])
+  @@map("urls")
+}
+
+model UrlMetrics {
+  id String @id @default(uuid())
+
+  urlId               String
+  accessedFromIp      String?
+  accessedFromCity    String?
+  accessedFromCountry String?
+  accessedOn          DateTime @default(now()) //Also work as the createdAt
+  userAgent           String?
+  accessedDeviceType  String?
+  isBot               Boolean  @default(false)
+  // relations
+  url                 Url      @relation(fields: [urlId], references: [id])
+
+  @@index([urlId, accessedOn])
+  @@map("url_metrics")
 }
