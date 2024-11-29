@@ -1,6 +1,6 @@
 import { Url } from "@prisma/client";
 import { prisma } from "../../../app";
-import { TJWTPayload } from "../../../types/jwt/payload";
+import { TJWTPayload } from "../../../types";
 import { URLHelper } from "./url.helper";
 
 const createIntoDB = async (url: Url, user: TJWTPayload) => {

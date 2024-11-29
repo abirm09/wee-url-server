@@ -1,5 +1,5 @@
 import { PaymentProvider } from "@prisma/client";
-import { TJWTPayload } from "../../../types/jwt/payload";
+import { TJWTPayload } from "../../../types";
 import { TPrismaClientInstance } from "../../../types/prisma/TPrismaClientInstance";
 
 export type TCalculateSubscriptionAmount = {

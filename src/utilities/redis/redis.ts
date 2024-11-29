@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SubscriptionType } from "@prisma/client";
-import { RedisClient } from "../../shared/redis";
+import { RedisClient } from "../../shared";
 
 const getUserCache = async (userId: string) => {
   return await RedisClient.get(`user:${userId}`);

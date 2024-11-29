@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PermissionConst } from "../app/modules/user_management/admin_permissions/permission.const";
-import { logger } from "../utilities/logger/logger";
+import { Logger } from "../utilities";
 const prisma = new PrismaClient();
 
 const main = async () => {
@@ -26,9 +26,9 @@ const main = async () => {
         data: missingPermissions.map((perm) => ({ name: perm })),
       });
 
-      logger.console.info("Missing permissions added:", missingPermissions);
+      Logger.console.info("Missing permissions added:", missingPermissions);
     } else {
-      logger.console.info(
+      Logger.console.info(
         "All required permissions are already in the database"
       );
     }
@@ -36,7 +36,7 @@ const main = async () => {
 };
 
 main()
-  .catch((err) => logger.console.error(err))
+  .catch((err) => Logger.console.error(err))
   .finally(async () => {
     await prisma.$disconnect();
   });

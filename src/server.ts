@@ -1,23 +1,23 @@
 import { Server } from "http";
 import { createApp } from "./app";
-import config from "./config";
-import { RedisClient } from "./shared/redis";
-import { logger } from "./utilities/logger/logger";
+import { env } from "./config";
+import { RedisClient } from "./shared";
+import { Logger } from "./utilities";
 
 const app = createApp();
 
 const bootstrap = async () => {
   await RedisClient.connect();
 
-  const server: Server = app.listen(config.port, () => {
-    logger.console.info(`===${config.env}===`);
-    logger.console.info(`Server is running at http://localhost:${config.port}`);
+  const server: Server = app.listen(env.port, () => {
+    Logger.console.info(`===${env.env}===`);
+    Logger.console.info(`Server is running at http://localhost:${env.port}`);
   });
 
   const exitHandler = (error: unknown, errorType: string) => {
     if (server) {
       server.close(() => {
-        logger.console.error(errorType, error);
+        Logger.console.error(errorType, error);
         process.exit(1);
       });
     } else {
@@ -26,7 +26,7 @@ const bootstrap = async () => {
   };
 
   const unexpectedErrorHandler = (error: unknown, errorType: string) => {
-    logger.console.error(error);
+    Logger.console.error(error);
     exitHandler(error, errorType);
   };
 
@@ -40,7 +40,7 @@ const bootstrap = async () => {
   process.on("unhandledRejection", unhandledRejection);
 
   process.on("SIGTERM", () => {
-    logger.console.error("SIGTERM received");
+    Logger.console.error("SIGTERM received");
     if (server) {
       server.close();
     }

@@ -12,7 +12,10 @@ type IApiResponse<T> = {
   data?: T | null;
 };
 
-const successResponse = <T>(res: Response, data: IApiResponse<T>): void => {
+export const successResponse = <T>(
+  res: Response,
+  data: IApiResponse<T>
+): void => {
   const responseData: IApiResponse<T> = {
     statusCode: data.statusCode,
     success: true,
@@ -23,5 +26,3 @@ const successResponse = <T>(res: Response, data: IApiResponse<T>): void => {
 
   res.status(data.statusCode).json(responseData);
 };
-
-export default successResponse;

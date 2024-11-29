@@ -8,8 +8,9 @@ import morgan from "morgan";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
 import router from "./app/routes";
-import config from "./config";
+import { env } from "./config";
 import { WebhookRoutes } from "./web_hooks/routes";
+
 // Create an instance of PrismaClient
 export const prisma = new PrismaClient();
 
@@ -19,13 +20,13 @@ export const createApp = (): Application => {
   const app: Application = express();
 
   const corsOptions: CorsOptions = {
-    origin: config.client_side_urls,
+    origin: env.client_side_urls,
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Content-Type, Authorization",
   };
 
-  if (config.env === "production") {
+  if (env.env === "production") {
     app.set("trust proxy", 1);
   }
 
@@ -34,18 +35,22 @@ export const createApp = (): Application => {
   app.use(cookieParser());
   app.use(helmet());
   app.use(compression());
-  if (config.env === "development") {
+  if (env.env === "development") {
     app.use(morgan("dev"));
   }
 
   // Webhooks
-  app.use("/webhook", express.raw({ type: "application/json" }), WebhookRoutes);
+  app.use(
+    "/api/v1/webhook",
+    express.raw({ type: "application/json" }),
+    WebhookRoutes
+  );
 
   app.use(express.json());
 
   // Root route
   app.get("/", (req, res) => {
-    res.status(301).redirect(config.client_side_urls[0]);
+    res.status(301).redirect(env.client_side_urls[0]);
   });
 
   // API routes

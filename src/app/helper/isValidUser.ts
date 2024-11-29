@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { DefaultArgs } from "@prisma/client/runtime/library";
 import httpStatus from "http-status";
-import ApiError from "../../errors/ApiError";
+import { ApiError } from "../../errorHandlers";
 
 const isValidUser = async (
   client:

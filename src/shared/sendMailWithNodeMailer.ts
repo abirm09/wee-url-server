@@ -1,11 +1,11 @@
 import nodemailer from "nodemailer";
-import config from "../config";
+import { env } from "../config";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: config.google_smtp.user,
-    pass: config.google_smtp.pass,
+    user: env.google_smtp.user,
+    pass: env.google_smtp.pass,
   },
 });
 
@@ -16,7 +16,7 @@ export type TMailConfig = {
   html?: string;
 };
 
-const sendMailWithNodeMailer = async ({
+export const sendMailWithNodeMailer = async ({
   to,
   subject,
   text,
@@ -31,5 +31,3 @@ const sendMailWithNodeMailer = async ({
   });
   return res;
 };
-
-export default sendMailWithNodeMailer;

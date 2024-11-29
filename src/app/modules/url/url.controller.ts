@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import catchAsync from "../../../shared/catchAsync";
-import successResponse from "../../../shared/successResponse";
+import { catchAsync, successResponse } from "../../../shared";
 import { URLService } from "./url.service";
 
 const create = catchAsync(async (req: Request, res: Response) => {

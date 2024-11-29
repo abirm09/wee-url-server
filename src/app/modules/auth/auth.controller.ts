@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import config from "../../../config";
-import catchAsync from "../../../shared/catchAsync";
-import setCookie from "../../../shared/setCookie";
-import successResponse from "../../../shared/successResponse";
+import { env } from "../../../config";
+import { catchAsync, setCookie, successResponse } from "../../../shared";
 import { AuthService } from "./auth.service";
 
 const login = catchAsync(async (req: Request, res: Response) => {
@@ -18,7 +16,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
   setCookie(res, {
     cookieName: "_wee_url",
     value: refreshToken,
-    cookieOption: { maxAge: Number(config.refresh_token.cookie_expires_in) },
+    cookieOption: { maxAge: Number(env.refresh_token.cookie_expires_in) },
   });
 
   successResponse(res, {

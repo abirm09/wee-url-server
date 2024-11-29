@@ -1,12 +1,11 @@
 import { SubscriptionPlan, Url } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
-import config from "../../../config";
-import ApiError from "../../../errors/ApiError";
-import { TJWTPayload } from "../../../types/jwt/payload";
+import { env } from "../../../config";
+import { ApiError } from "../../../errorHandlers";
+import { TJWTPayload } from "../../../types";
 import { TPrismaClientInstance } from "../../../types/prisma/TPrismaClientInstance";
-import { CacheManager } from "../../../utilities/redis";
-import GenerateUrlShortCode from "../../../utilities/url_short_code";
+import { CacheManager, GenerateUrlShortCode } from "../../../utilities";
 
 const createNewUrl = async (
   url: Url,
@@ -106,7 +105,7 @@ const createNewUrl = async (
     if (url.password) {
       const hashedPassword = await bcrypt.hash(
         url.password,
-        config.bcrypt_salt_rounds
+        env.bcrypt_salt_rounds
       );
       url.password = hashedPassword;
     } else {

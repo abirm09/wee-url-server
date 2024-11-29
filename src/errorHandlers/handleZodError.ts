@@ -1,8 +1,5 @@
 import { ZodError, ZodIssue } from "zod";
-import {
-  TErrorMessages,
-  TErrorResponse,
-} from "../types/response/genericErrorResponse";
+import { TErrorMessages, TErrorResponse } from "../types";
 
 const handleZodError = (error: ZodError): TErrorResponse => {
   const errors: TErrorMessages[] = error.issues.map((issue: ZodIssue) => {

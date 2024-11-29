@@ -1,6 +1,6 @@
 import GenerateUniqueId from "./uniqueID";
 
-const GenerateUrlShortCode = () => {
+export const GenerateUrlShortCode = () => {
   const characters =
     "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const base = characters.length;
@@ -17,5 +17,3 @@ const GenerateUrlShortCode = () => {
   const shortCode = toBase62(id);
   return shortCode;
 };
-
-export default GenerateUrlShortCode;

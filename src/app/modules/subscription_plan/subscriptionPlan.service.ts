@@ -1,7 +1,7 @@
 import { BillingPeriod, BillingType, SubscriptionPlan } from "@prisma/client";
 import httpStatus from "http-status";
 import { prisma } from "../../../app";
-import ApiError from "../../../errors/ApiError";
+import { ApiError } from "../../../errorHandlers";
 
 const createIntoDB = async (
   subscriptionData: SubscriptionPlan,
