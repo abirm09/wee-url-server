@@ -344,7 +344,8 @@ model UrlMetrics {
   accessedDeviceType  String?
   isBot               Boolean  @default(false)
   // relations
-  url                 Url      @relation(fields: [urlId], references: [id])
+  url                 Url?     @relation(fields: [urlId], references: [id])
+  createdAt           DateTime @default(now())
 
   @@index([urlId, accessedOn])
   @@map("url_metrics")

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AuthRoutes } from "../modules/auth/auth.routes";
 import { SubscriptionRoutes } from "../modules/subscription/subscription.routes";
 import { SubscriptionPlanRoutes } from "../modules/subscription_plan/subscriptionPlan.routes";
-import { URLRoutes } from "../modules/url/url.routes";
+import { URLRoutes } from "../modules/url_management/url/url.routes";
 import { UserRoutes } from "../modules/user_management/user/user.routes";
 
 const router = Router();

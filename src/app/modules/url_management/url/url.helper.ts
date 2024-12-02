@@ -1,11 +1,11 @@
 import { SubscriptionPlan, Url } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
-import { env } from "../../../config";
-import { ApiError } from "../../../errorHandlers";
-import { TJWTPayload } from "../../../types";
-import { TPrismaClientInstance } from "../../../types/prisma/TPrismaClientInstance";
-import { CacheManager, GenerateUrlShortCode } from "../../../utilities";
+import { env } from "../../../../config";
+import { ApiError } from "../../../../errorHandlers";
+import { TJWTPayload } from "../../../../types";
+import { TPrismaClientInstance } from "../../../../types/prisma/TPrismaClientInstance";
+import { CacheManager, GenerateUrlShortCode } from "../../../../utilities";
 
 const createNewUrl = async (
   url: Url,

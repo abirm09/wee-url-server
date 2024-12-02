@@ -5,8 +5,11 @@ import cors, { CorsOptions } from "cors";
 import express, { Application } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import path from "path";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
+import userIp from "./app/middlewares/userIp";
+import { RedirectController } from "./app/modules/redirect/redirect.controller";
 import router from "./app/routes";
 import { env } from "./config";
 import { WebhookRoutes } from "./web_hooks/routes";
@@ -35,6 +38,7 @@ export const createApp = (): Application => {
   app.use(cookieParser());
   app.use(helmet());
   app.use(compression());
+  app.use(userIp);
   if (env.env === "development") {
     app.use(morgan("dev"));
   }
@@ -47,6 +51,21 @@ export const createApp = (): Application => {
   );
 
   app.use(express.json());
+
+  // Static assets
+  app.use(express.static("public"));
+
+  // Url redirect middleware
+  app.use(RedirectController.redirect);
+
+  // VIew engin config
+  app.set("view engine", "ejs");
+  app.set("views", path.join(__dirname, "views"));
+
+  // Favicon route
+  app.get("/favicon.ico", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "public", "favicon.ico"));
+  });
 
   // Root route
   app.get("/", (req, res) => {

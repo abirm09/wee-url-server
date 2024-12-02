@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "url_metrics" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
