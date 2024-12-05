@@ -1,14 +1,15 @@
 import { Prisma } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
-import config from "../../config";
-import ApiError from "../../errors/ApiError";
-
-import handlePrismaKnownError from "../../errors/handlePrismaKnownError";
-import handlePrismaValidationError from "../../errors/handlePrismaValidationError";
-import handleZodError from "../../errors/handleZodError";
-import { TErrorMessages } from "../../types/response/genericErrorResponse";
-import { logger } from "../../utilities/logger/logger";
+import { env } from "../../config";
+import {
+  ApiError,
+  handlePrismaKnownError,
+  handlePrismaValidationError,
+  handleZodError,
+} from "../../errorHandlers";
+import { TErrorMessages } from "../../types";
+import { Logger } from "../../utilities";
 
 /**
  * The `globalErrorHandler` function handles errors in a TypeScript application by logging the error in
@@ -22,8 +23,8 @@ const globalErrorHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
-  if (config.env === "development")
-    logger.console.info(`❌ - Global error handler`, error);
+  if (env.env === "development")
+    Logger.console.info(`❌ - Global error handler`, error);
 
   let statusCode = 500;
   let message = "Something went wrong! Please contact to the support";
@@ -61,7 +62,7 @@ const globalErrorHandler = (
     success: false,
     message,
     errorMessages,
-    stack: config.env !== "production" ? error?.stack : undefined,
+    stack: env.env !== "production" ? error?.stack : undefined,
   });
 };
 

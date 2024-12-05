@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { upload } from "../../../../config/multer";
+import { Upload } from "../../../../config";
 import authGuard from "../../../middlewares/authGuard";
 import rateLimit from "../../../middlewares/rateLimit";
 import validateRequest from "../../../middlewares/validateRequest";
@@ -33,7 +33,7 @@ route.patch(
   authGuard({
     requiredRoles: ["admin", "customer"],
   }),
-  upload.userProfilePictures.single("image"),
+  Upload.userProfilePictures.single("image"),
   UserMiddlewares.convertUpdateProfileFormDataToObject,
   validateRequest(UserValidations.update),
   UserController.updateUser

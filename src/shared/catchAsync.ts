@@ -1,8 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import deleteImageFromCloudinary from "../utilities/cloudinary/deleteImageFromCloudinary";
-import { logger } from "../utilities/logger/logger";
+import { DeleteImageFromCloudinary, Logger } from "../utilities";
 
-const catchAsync =
+export const catchAsync =
   (fn: RequestHandler) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -22,9 +21,9 @@ const catchAsync =
       const filesToDelete = getFilenames();
       if (filesToDelete.length > 0) {
         try {
-          await deleteImageFromCloudinary(filesToDelete);
+          await DeleteImageFromCloudinary(filesToDelete);
         } catch (deleteError) {
-          logger.console.error(
+          Logger.console.error(
             "Failed to delete images from Cloudinary:",
             deleteError
           );
@@ -34,5 +33,3 @@ const catchAsync =
       next(error);
     }
   };
-
-export default catchAsync;

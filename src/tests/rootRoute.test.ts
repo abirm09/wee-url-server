@@ -2,7 +2,7 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../app";
-import config from "../config";
+import { env } from "../config";
 
 const app = createApp();
 
@@ -11,6 +11,6 @@ describe("GET /", () => {
     const response = await request(app).get("/");
 
     expect(response.status).toBe(302);
-    expect(response.headers.location).toBe(config.client_side_urls[0]);
+    expect(response.headers.location).toBe(env.client_side_urls[0]);
   });
 });

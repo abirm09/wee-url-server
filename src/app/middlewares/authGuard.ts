@@ -3,10 +3,10 @@ import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../app";
-import config from "../../config";
-import ApiError from "../../errors/ApiError";
-import { TJWTPayload } from "../../types/jwt/payload";
-import { CacheManager } from "../../utilities/redis";
+import { env } from "../../config";
+import { ApiError } from "../../errorHandlers";
+import { TJWTPayload } from "../../types";
+import { CacheManager } from "../../utilities";
 
 const authGuard =
   ({
@@ -33,7 +33,7 @@ const authGuard =
 
       let payload: TJWTPayload;
       try {
-        payload = jwt.verify(token, config.access_token.secret) as TJWTPayload;
+        payload = jwt.verify(token, env.access_token.secret) as TJWTPayload;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication failed.");
@@ -118,7 +118,7 @@ const authGuard =
         );
       }
 
-      // Check role permissions
+      // Check role and permissions
       if (
         requiredRoles?.length &&
         user.role !== "superAdmin" &&

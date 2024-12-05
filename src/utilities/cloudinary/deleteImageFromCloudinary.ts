@@ -1,12 +1,10 @@
-import cloudinary from "../../config/cloudinary";
-import { logger } from "../logger/logger";
+import { Cloudinary } from "../../config";
+import { Logger } from "../logger/logger";
 
-const deleteImageFromCloudinary = async (ids: string[]) => {
+export const DeleteImageFromCloudinary = async (ids: string[]) => {
   try {
-    await cloudinary.api.delete_resources(ids);
+    await Cloudinary.api.delete_resources(ids);
   } catch (error) {
-    logger.console.info("Failed to delete image from cloudinary", error);
+    Logger.console.info("Failed to delete image from cloudinary", error);
   }
 };
-
-export default deleteImageFromCloudinary;

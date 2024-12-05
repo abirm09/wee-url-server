@@ -1,8 +1,8 @@
 import { BillingType } from "@prisma/client";
 import httpStatus from "http-status";
-import ApiError from "../../../errors/ApiError";
+import { ApiError } from "../../../errorHandlers";
 import { TPrismaClientInstance } from "../../../types/prisma/TPrismaClientInstance";
-import { logger } from "../../../utilities/logger/logger";
+import { Logger } from "../../../utilities";
 import { PaymentInput } from "../payment/payment.types";
 import {
   TCalculateSubscriptionAmount,
@@ -277,7 +277,7 @@ const createSubscription = async (
   }
 
   if (!subscriptionReqData) {
-    logger.console.info(
+    Logger.console.info(
       `Failed to find subscription request with ${paymentIntent ? "paymentIntent" : ""}=${paymentIntent}`
     );
     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid request");

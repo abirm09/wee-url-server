@@ -1,6 +1,6 @@
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "./cloudinary";
+import { Cloudinary } from "./";
 
 const userProfilePicParams = {
   folder: "WeeURL/userProfilePictures",
@@ -8,7 +8,7 @@ const userProfilePicParams = {
 
 const storage = (params: { folder: string }) =>
   new CloudinaryStorage({
-    cloudinary: cloudinary,
+    cloudinary: Cloudinary,
     params,
   });
 
@@ -28,6 +28,6 @@ const userProfilePictures = multer({
   },
 });
 
-export const upload = {
+export const Upload = {
   userProfilePictures,
 };

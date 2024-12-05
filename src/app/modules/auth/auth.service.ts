@@ -6,14 +6,15 @@ import jwt from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import { v4 as uuid } from "uuid";
 import { prisma } from "../../../app";
-import config from "../../../config";
-import ApiError from "../../../errors/ApiError";
-import GetDateCustomDaysFromNow from "../../../shared/getDateCustomDaysFromNow";
-import sendMailWithNodeMailer from "../../../shared/sendMailWithNodeMailer";
-import setCookie from "../../../shared/setCookie";
-import { TJWTPayload } from "../../../types/jwt/payload";
-import { IPInfo } from "../../../utilities/ip_info";
-import { CacheManager } from "../../../utilities/redis";
+import { env } from "../../../config";
+import { ApiError } from "../../../errorHandlers";
+import {
+  getDateCustomDaysFromNow,
+  sendMailWithNodeMailer,
+  setCookie,
+} from "../../../shared";
+import { TJWTPayload } from "../../../types";
+import { CacheManager, IPInfo } from "../../../utilities";
 import isValidUser from "../../helper/isValidUser";
 import { LoggedInDeviceInput } from "../logged_in_device/loggedInDevice.types";
 import { AuthHelper } from "./auth.helper";
@@ -64,12 +65,12 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
       tokenId,
     };
 
-    const refreshToken = jwt.sign(tokenPayload, config.refresh_token.secret, {
-      expiresIn: config.refresh_token.expires_in,
+    const refreshToken = jwt.sign(tokenPayload, env.refresh_token.secret, {
+      expiresIn: env.refresh_token.expires_in,
     });
 
-    const accessToken = jwt.sign(tokenPayload, config.access_token.secret, {
-      expiresIn: config.access_token.expires_in,
+    const accessToken = jwt.sign(tokenPayload, env.access_token.secret, {
+      expiresIn: env.access_token.expires_in,
     });
 
     const ipInFo = await IPInfo(userIp);
@@ -81,7 +82,7 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
       userAgent: userAgent || null,
       city: ipInFo?.city || null,
       country: ipInFo?.country || null,
-      expiresAt: GetDateCustomDaysFromNow(config.refresh_token.expires_in),
+      expiresAt: getDateCustomDaysFromNow(env.refresh_token.expires_in),
       isBlocked: false,
       lastUsedAt: new Date(),
       blockedAt: null,
@@ -112,7 +113,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
     // Verify the refresh token and extract the payload
     const { tokenId, userId, role } = jwt.verify(
       refreshToken,
-      config.refresh_token.secret
+      env.refresh_token.secret
     ) as TJWTPayload;
 
     return prisma.$transaction(async (tx) => {
@@ -139,8 +140,8 @@ const accessToken = async (refreshToken: string, res: Response) => {
 
       // Generate a new access token
       await CacheManager.deleteUserCache(userId);
-      return jwt.sign({ userId, role, tokenId }, config.access_token.secret, {
-        expiresIn: config.access_token.expires_in,
+      return jwt.sign({ userId, role, tokenId }, env.access_token.secret, {
+        expiresIn: env.access_token.expires_in,
       });
     });
   } catch (error) {

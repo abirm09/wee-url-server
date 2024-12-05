@@ -1,6 +1,4 @@
-import Stripe from "stripe";
-import config from "./";
+import stripe from "stripe";
+import { env } from "./env";
 
-const stripe = new Stripe(config.stripe.stripe_secret_key);
-
-export default stripe;
+export const Stripe = new stripe(env.stripe.stripe_secret_key);

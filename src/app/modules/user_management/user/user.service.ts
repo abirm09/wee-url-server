@@ -2,11 +2,11 @@ import { Profile, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
 import { prisma } from "../../../../app";
-import config from "../../../../config";
-import ApiError from "../../../../errors/ApiError";
-import { TJWTPayload } from "../../../../types/jwt/payload";
-import deleteImageFromCloudinary from "../../../../utilities/cloudinary/deleteImageFromCloudinary";
-import { CacheManager } from "../../../../utilities/redis";
+import { env } from "../../../../config";
+import { TJWTPayload } from "../../../../types";
+
+import { ApiError } from "../../../../errorHandlers";
+import { CacheManager, DeleteImageFromCloudinary } from "../../../../utilities";
 import { UserHelper } from "./user.helper";
 
 /**
@@ -19,7 +19,7 @@ import { UserHelper } from "./user.helper";
 const createIntoDB = async (payload: User) => {
   const hashedPassword = await bcrypt.hash(
     payload.password,
-    config.bcrypt_salt_rounds
+    env.bcrypt_salt_rounds
   );
 
   await prisma.$transaction(async (tx) => {
@@ -176,7 +176,7 @@ const updateUserIntoDB = async (
         });
 
         if (previousProfileData?.picPublicId) {
-          await deleteImageFromCloudinary([previousProfileData?.picPublicId]);
+          await DeleteImageFromCloudinary([previousProfileData?.picPublicId]);
         }
       }
       await tx.profile.update({

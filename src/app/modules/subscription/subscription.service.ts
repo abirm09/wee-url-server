@@ -1,9 +1,9 @@
 import httpStatus from "http-status";
 import { prisma } from "../../../app";
-import stripe from "../../../config/stripe";
-import ApiError from "../../../errors/ApiError";
-import { TJWTPayload } from "../../../types/jwt/payload";
-import { logger } from "../../../utilities/logger/logger";
+import { Stripe } from "../../../config";
+import { ApiError } from "../../../errorHandlers";
+import { TJWTPayload } from "../../../types";
+import { Logger } from "../../../utilities";
 import { SubscriptionRequestInput } from "../subscription_request/subscriptionRequest.types";
 import { SubscriptionHelper } from "./subscription.helper";
 import { TCreateSubscription } from "./subscription.types";
@@ -111,7 +111,7 @@ const createStripeIntentIntoDB = async (
 
     let paymentIntent;
     if (request.remainingPayableAmount) {
-      paymentIntent = await stripe.paymentIntents.create({
+      paymentIntent = await Stripe.paymentIntents.create({
         amount: Math.round(request.remainingPayableAmount * 100),
         currency: "usd",
       });
@@ -153,7 +153,7 @@ const processChargeSucceeded = async (eventData: any) => {
       await SubscriptionHelper.createSubscription(subscriptionData, tx);
     });
   } catch (error) {
-    logger.console.error("Payment successful, but failed to subscribe.", error);
+    Logger.console.error("Payment successful, but failed to subscribe.", error);
   }
 };
 

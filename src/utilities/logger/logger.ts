@@ -16,6 +16,6 @@ const console = createLogger({
   transports: [new transports.Console()],
 });
 
-export const logger = {
+export const Logger = {
   console,
 };

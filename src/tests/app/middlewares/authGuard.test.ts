@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp, prisma } from "../../../app";
-import config from "../../../config";
-import { RedisClient } from "../../../shared/redis";
+import { env } from "../../../config";
+import { RedisClient } from "../../../shared";
 
 describe("MIDDLEWARE authGuard", () => {
   let app = createApp();
@@ -15,8 +15,8 @@ describe("MIDDLEWARE authGuard", () => {
 
     // Perform a login request to get access and refresh tokens
     const loginResponse = await request(app).post("/api/v1/auth/login").send({
-      email: config.test_admin.email,
-      password: config.test_admin.password,
+      email: env.test_admin.email,
+      password: env.test_admin.password,
     });
 
     expect(loginResponse.status).toBe(200);

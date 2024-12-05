@@ -1,17 +1,17 @@
-import config from "../../config";
-import { TIpInFo } from "../../types/ip_info/ipInfo";
-import { logger } from "../logger/logger";
+import { env } from "../../config";
+import { TIpInFo } from "../../types";
+import { Logger } from "../logger/logger";
 
 export const IPInfo = async (userIp?: string): Promise<TIpInFo> => {
   if (!userIp) return null;
   try {
     const response = await fetch(
-      `https://ipinfo.io/${userIp}?token=${config.ip_info.token}`
+      `https://ipinfo.io/${userIp}?token=${env.ip_info.token}`
     );
 
     if (!response.ok) {
       // Handle HTTP errors gracefully
-      logger.console.error(
+      Logger.console.error(
         `Failed to fetch IP info. Status: ${response.status}, Message: ${response.statusText}`
       );
       return null;
@@ -29,7 +29,7 @@ export const IPInfo = async (userIp?: string): Promise<TIpInFo> => {
       timezone: data?.timezone || null,
     };
   } catch (error) {
-    logger.console.error("Failed to fetch user IP information", error);
+    Logger.console.error("Failed to fetch user IP information", error);
     return null;
   }
 };
