@@ -13,6 +13,16 @@ const create = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await URLService.getAllUserFromDB(req.user, req.query);
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "All url retrieved successfully.",
+    data: result,
+  });
+});
+
 export const URLController = {
   create,
+  getAllUser,
 };

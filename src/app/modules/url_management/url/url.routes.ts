@@ -13,4 +13,10 @@ router.post(
   URLController.create
 );
 
+router.get(
+  "/user",
+  authGuard({ requiredRoles: ["customer"] }),
+  URLController.getAllUser
+);
+
 export const URLRoutes = router;

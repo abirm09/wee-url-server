@@ -9,6 +9,15 @@ const createIntoDB = async (url: Url, user: TJWTPayload) => {
   });
 };
 
+const getAllUserFromDB = async (
+  user: TJWTPayload,
+  query: Record<string, unknown>
+) => {
+  // eslint-disable-next-line no-console
+  console.log(query, user);
+};
+
 export const URLService = {
   createIntoDB,
+  getAllUserFromDB,
 };
