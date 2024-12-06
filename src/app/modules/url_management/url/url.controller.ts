@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import { catchAsync, successResponse } from "../../../../shared";
+import { PaginationConst } from "../../../../const";
+import { catchAsync, Pick, successResponse } from "../../../../shared";
+import { UrlConst } from "./url.const";
 import { URLService } from "./url.service";
 
 const create = catchAsync(async (req: Request, res: Response) => {
@@ -14,11 +16,20 @@ const create = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await URLService.getAllUserFromDB(req.user, req.query);
+  const options = Pick(req.query, PaginationConst.queryKeys);
+  const filters = Pick(req.query, UrlConst.urlFilterableFields);
+
+  const { data, meta } = await URLService.getAllUserFromDB(
+    req.user,
+    options,
+    filters
+  );
+
   successResponse(res, {
     statusCode: httpStatus.OK,
     message: "All url retrieved successfully.",
-    data: result,
+    meta,
+    data,
   });
 });
 

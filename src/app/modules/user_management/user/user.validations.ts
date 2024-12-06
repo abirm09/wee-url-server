@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { passwordZodSchema } from "../../../../validations/password.Validation";
+import { PasswordValidations } from "../../../../validations";
 
 const create = z.object({
   body: z.object({
@@ -10,7 +10,7 @@ const create = z.object({
       .string({ required_error: "Email is required!" })
       .email()
       .max(254, "Email must be at most 254 characters long"),
-    password: passwordZodSchema(),
+    password: PasswordValidations.input(),
   }),
 });
 

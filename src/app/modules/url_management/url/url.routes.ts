@@ -16,6 +16,7 @@ router.post(
 router.get(
   "/user",
   authGuard({ requiredRoles: ["customer"] }),
+  validateRequest(URLValidation.getAllForCustomers),
   URLController.getAllUser
 );
 

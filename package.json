@@ -1,5 +1,5 @@
 {
-  "name": "wee_url_server",
+  "name": "wee-url-server",
   "version": "0.0.1",
   "description": "A Link Shortener app",
   "main": "./dist/server.js",
@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "nodemon",
     "start": "node ./dist/server.js",
-    "seed": "ts-node ./src/seeds",
+    "seed": "node ./dist/seeds",
     "build": "npx tsc",
     "prepare": "node .husky/install.mjs",
     "postinstall": "node ./src/postinstall/index.mjs",
