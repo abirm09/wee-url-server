@@ -3,6 +3,7 @@ import { AuthRoutes } from "../modules/auth/auth.routes";
 import { SubscriptionRoutes } from "../modules/subscription/subscription.routes";
 import { SubscriptionPlanRoutes } from "../modules/subscription_plan/subscriptionPlan.routes";
 import { URLRoutes } from "../modules/url_management/url/url.routes";
+import { UrlMetricRoutes } from "../modules/url_management/url_metric/urlMetric.routes";
 import { UserRoutes } from "../modules/user_management/user/user.routes";
 
 const router = Router();
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: "/url",
     route: URLRoutes,
+  },
+  {
+    path: "/url-metric",
+    route: UrlMetricRoutes,
   },
 ];
 
