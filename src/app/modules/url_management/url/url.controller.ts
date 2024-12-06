@@ -33,7 +33,19 @@ const getAllUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUniqueTagsCustomer = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await URLService.getUniqueTagsCustomerFromDB(req.user);
+    successResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "All tags retrieved successfully.",
+      data,
+    });
+  }
+);
+
 export const URLController = {
   create,
   getAllUser,
+  getUniqueTagsCustomer,
 };

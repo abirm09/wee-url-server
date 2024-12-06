@@ -1,7 +1,7 @@
 import { Prisma, Url } from "@prisma/client";
 import { prisma } from "../../../../app";
 import { TJWTPayload, TPaginationOption } from "../../../../types";
-import { Pagination } from "../../../../utilities";
+import { CacheManager, Pagination } from "../../../../utilities";
 import { TUrlFilterRequest } from "./ur.types";
 import { URLHelper } from "./url.helper";
 
@@ -64,7 +64,33 @@ const getAllUserFromDB = async (
   };
 };
 
+const getUniqueTagsCustomerFromDB = async (user: TJWTPayload) => {
+  let uniqueTags: string[] | null = await CacheManager.getTagsCache(
+    user.userId
+  );
+
+  if (!uniqueTags) {
+    const result = await prisma.url.findMany({
+      where: {
+        userId: user.userId,
+      },
+      select: {
+        tags: true,
+      },
+    });
+
+    uniqueTags = Array.from(new Set(result.flatMap((url) => url.tags)));
+
+    await CacheManager.setTagsCache(user.userId, uniqueTags);
+  }
+
+  return {
+    tags: uniqueTags,
+  };
+};
+
 export const URLService = {
   createIntoDB,
   getAllUserFromDB,
+  getUniqueTagsCustomerFromDB,
 };
