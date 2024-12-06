@@ -44,8 +44,21 @@ const getUniqueTagsCustomer = catchAsync(
   }
 );
 
+const getSingleUrlCustomer = catchAsync(async (req: Request, res: Response) => {
+  const data = await URLService.getSingleUrlCustomerFromDB(
+    req.user,
+    req.params.id
+  );
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Url details retrieved successfully.",
+    data,
+  });
+});
+
 export const URLController = {
   create,
   getAllUser,
   getUniqueTagsCustomer,
+  getSingleUrlCustomer,
 };

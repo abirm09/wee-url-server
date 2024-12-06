@@ -14,7 +14,7 @@ router.post(
 );
 
 router.get(
-  "/user/customer",
+  "/customer",
   authGuard({ requiredRoles: ["customer"] }),
   validateRequest(URLValidation.getAllForCustomers),
   URLController.getAllUser
@@ -24,6 +24,12 @@ router.get(
   "/tags/customer",
   authGuard({ requiredRoles: ["customer"] }),
   URLController.getUniqueTagsCustomer
+);
+
+router.get(
+  "/customer/:id",
+  authGuard({ requiredRoles: ["customer"] }),
+  URLController.getSingleUrlCustomer
 );
 
 export const URLRoutes = router;

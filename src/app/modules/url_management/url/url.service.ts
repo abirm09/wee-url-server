@@ -1,5 +1,7 @@
 import { Prisma, Url } from "@prisma/client";
+import httpStatus from "http-status";
 import { prisma } from "../../../../app";
+import { ApiError } from "../../../../errorHandlers";
 import { TJWTPayload, TPaginationOption } from "../../../../types";
 import { CacheManager, Pagination } from "../../../../utilities";
 import { TUrlFilterRequest } from "./ur.types";
@@ -46,6 +48,18 @@ const getAllUserFromDB = async (
     andCondition.length > 0 ? { AND: andCondition } : {};
   const result = await prisma.url.findMany({
     where: whereConditions,
+    select: {
+      id: true,
+      shortCode: true,
+      fullUrl: true,
+      tags: true,
+      createdAt: true,
+      _count: {
+        select: {
+          urlMetrics: true,
+        },
+      },
+    },
     skip,
     take: limit,
     orderBy: { [sortBy]: sortOrder },
@@ -89,8 +103,39 @@ const getUniqueTagsCustomerFromDB = async (user: TJWTPayload) => {
   };
 };
 
+const getSingleUrlCustomerFromDB = async (user: TJWTPayload, id: string) => {
+  const result = await prisma.url.findUnique({
+    where: {
+      id: id,
+    },
+    select: {
+      id: true,
+      shortCode: true,
+      fullUrl: true,
+      tags: true,
+      createdAt: true,
+      isActive: true,
+      expiresAt: true,
+      updatedAt: true,
+      password: true,
+      _count: {
+        select: {
+          urlMetrics: true,
+        },
+      },
+    },
+  });
+
+  if (!result) throw new ApiError(httpStatus.BAD_REQUEST, "No URL found");
+
+  if (result.password) result.password = "exist";
+
+  return result;
+};
+
 export const URLService = {
   createIntoDB,
   getAllUserFromDB,
   getUniqueTagsCustomerFromDB,
+  getSingleUrlCustomerFromDB,
 };
