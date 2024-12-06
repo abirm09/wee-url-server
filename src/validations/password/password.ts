@@ -15,7 +15,7 @@ const passwordValidatorRegex =
  * letter, 1 lowercase letter, 1 number, and 1 special character (@#$%&*). If the `isOptional`
  * parameter is set to `true`, the schema allows the
  */
-export const passwordZodSchema = (isOptional = false) => {
+const input = (isOptional = false) => {
   const schema = z
     .string({ required_error: "Password is required" })
     .refine((password) => passwordValidatorRegex.test(password), {
@@ -24,4 +24,8 @@ export const passwordZodSchema = (isOptional = false) => {
     });
 
   return isOptional ? schema.optional() : schema;
+};
+
+export const PasswordValidations = {
+  input,
 };
