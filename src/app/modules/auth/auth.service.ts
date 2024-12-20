@@ -109,50 +109,47 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
  * payload, checking device information, and generating a new access token.
  */
 const accessToken = async (refreshToken: string, res: Response) => {
-  try {
-    // Verify the refresh token and extract the payload
-    const { tokenId, userId, role } = jwt.verify(
-      refreshToken,
-      env.refresh_token.secret
-    ) as TJWTPayload;
-
-    return prisma.$transaction(async (tx) => {
-      // Check if the device information exists for the given tokenId
-      const deviceInfo = await tx.loggedInDevice.findUnique({
-        where: { tokenId },
-        select: {
-          id: true,
-          isBlocked: true,
-        },
-      });
-
-      if (!deviceInfo) throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
-
-      if (deviceInfo.isBlocked)
-        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
-
-      await tx.loggedInDevice.update({
-        where: { id: deviceInfo.id },
-        data: {
-          lastUsedAt: new Date(),
-        },
-      });
-
-      // Generate a new access token
-      await CacheManager.deleteUserCache(userId);
-      return jwt.sign({ userId, role, tokenId }, env.access_token.secret, {
-        expiresIn: env.access_token.expires_in,
-      });
-    });
-  } catch (error) {
-    // Clear the refresh token cookie upon error
+  // Verify the refresh token and extract the payload
+  const { tokenId, userId, role } = jwt.verify(
+    refreshToken,
+    env.refresh_token.secret
+  ) as TJWTPayload;
+  const invalidateCookieAndThrow = async (message: string) => {
+    await CacheManager.deleteDeviceCache(tokenId);
     setCookie(res, {
-      cookieName: "_wee_url",
+      cookieName: env.cookieNames.accessToken,
       value: refreshToken,
       cookieOption: { maxAge: 0 },
     });
-    throw error;
-  }
+    throw new ApiError(httpStatus.FORBIDDEN, message);
+  };
+  return prisma.$transaction(async (tx) => {
+    // Check if the device information exists for the given tokenId
+    const deviceInfo = await tx.loggedInDevice.findUnique({
+      where: { tokenId },
+      select: {
+        id: true,
+        isBlocked: true,
+      },
+    });
+
+    if (deviceInfo === null || deviceInfo.isBlocked === true) {
+      return await invalidateCookieAndThrow("Forbidden");
+    }
+
+    await tx.loggedInDevice.update({
+      where: { id: deviceInfo.id },
+      data: {
+        lastUsedAt: new Date(),
+      },
+    });
+
+    // Generate a new access token
+    await CacheManager.deleteUserCache(userId);
+    return jwt.sign({ userId, role, tokenId }, env.access_token.secret, {
+      expiresIn: env.access_token.expires_in,
+    });
+  });
 };
 
 /**
@@ -283,9 +280,19 @@ const verifyOtpFromDB = async (otp: string, user: TJWTPayload) => {
   });
 };
 
+const logout = async (user: TJWTPayload) => {
+  await prisma.loggedInDevice.delete({
+    where: {
+      tokenId: user.tokenId,
+    },
+  });
+  await CacheManager.deleteDeviceCache(user.tokenId);
+};
+
 export const AuthService = {
   login,
   accessToken,
   createVerifyEmailRequestIntoDB,
   verifyOtpFromDB,
+  logout,
 };

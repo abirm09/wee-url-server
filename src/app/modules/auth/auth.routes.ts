@@ -43,4 +43,13 @@ route.post(
   AuthController.verifyOtp
 );
 
+route.post(
+  "/logout",
+  rateLimit(5),
+  authGuard({
+    validateIsEmailVerified: false,
+  }),
+  AuthController.logout
+);
+
 export const AuthRoutes = route;

@@ -4,6 +4,8 @@ import { z } from "zod";
 
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 
+const accessTokenCookie = "_wee_url";
+
 const envVarsZodSchema = z.object({
   NODE_ENV: z.string({ required_error: "NODE_ENV is required" }),
   PORT: z
@@ -130,5 +132,8 @@ export const env = {
   },
   ip_info: {
     token: envVars.IP_INFO_TOKEN,
+  },
+  cookieNames: {
+    accessToken: accessTokenCookie,
   },
 };
