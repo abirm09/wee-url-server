@@ -14,7 +14,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
   );
 
   setCookie(res, {
-    cookieName: "_wee_url",
+    cookieName: env.cookieNames.accessToken,
     value: refreshToken,
     cookieOption: { maxAge: Number(env.refresh_token.cookie_expires_in) },
   });
@@ -27,7 +27,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
 });
 
 const accessToken = catchAsync(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies["_wee_url"];
+  const refreshToken = req.cookies[env.cookieNames.accessToken];
 
   const token = await AuthService.accessToken(refreshToken, res);
 
@@ -58,9 +58,19 @@ const verifyOtp = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const logout = catchAsync(async (req: Request, res: Response) => {
+  await AuthService.logout(req.user);
+  res.clearCookie(env.cookieNames.accessToken);
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Logout successfully",
+  });
+});
+
 export const AuthController = {
   login,
   accessToken,
   createVerifyEmailRequest,
   verifyOtp,
+  logout,
 };

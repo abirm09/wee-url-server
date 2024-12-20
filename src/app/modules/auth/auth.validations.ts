@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { env } from "../../../config";
 
 const login = z.object({
   body: z.object({
@@ -11,7 +12,9 @@ const login = z.object({
 
 const accessToken = z.object({
   cookies: z.object({
-    _wee_url: z.string({ required_error: "Invalid request" }),
+    [env.cookieNames.accessToken]: z.string({
+      required_error: "Invalid request",
+    }),
   }),
 });
 

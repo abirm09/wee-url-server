@@ -5,7 +5,7 @@
   "main": "./dist/server.js",
   "private": true,
   "repository": {
-    "url": "https://github.com/abirm09/WeeURL-server"
+    "url": "https://github.com/abirm09/wee-url-server"
   },
   "author": "MD Abir Mahmud <abirmahmud5665@gmail.com> (https://www.abirmahmud.top)",
   "license": "MIT",
