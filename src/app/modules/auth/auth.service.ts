@@ -118,7 +118,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
     await CacheManager.deleteDeviceCache(tokenId);
     setCookie(res, {
       cookieName: env.cookieNames.accessToken,
-      value: refreshToken,
+      value: "",
       cookieOption: { maxAge: 0 },
     });
     throw new ApiError(httpStatus.FORBIDDEN, message);

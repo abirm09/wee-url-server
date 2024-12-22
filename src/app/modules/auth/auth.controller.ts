@@ -60,7 +60,11 @@ const verifyOtp = catchAsync(async (req: Request, res: Response) => {
 
 const logout = catchAsync(async (req: Request, res: Response) => {
   await AuthService.logout(req.user);
-  res.clearCookie(env.cookieNames.accessToken);
+  setCookie(res, {
+    cookieName: env.cookieNames.accessToken,
+    value: "",
+    cookieOption: { maxAge: 0 },
+  });
   successResponse(res, {
     statusCode: httpStatus.OK,
     message: "Logout successfully",
