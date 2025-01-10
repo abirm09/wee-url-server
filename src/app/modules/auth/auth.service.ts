@@ -17,6 +17,7 @@ import { TJWTPayload } from "../../../types";
 import { CacheManager, IPInfo } from "../../../utilities";
 import isValidUser from "../../helper/isValidUser";
 import { LoggedInDeviceInput } from "../logged_in_device/loggedInDevice.types";
+import { UserService } from "../user_management/user/user.service";
 import { AuthHelper } from "./auth.helper";
 
 /**
@@ -90,7 +91,9 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
 
     await tx.loggedInDevice.create({ data: loggedInDeviceData });
 
-    return { accessToken, refreshToken };
+    const profile = await UserService.profileFromDB(user.id);
+
+    return { accessToken, refreshToken, profile };
   });
 };
 

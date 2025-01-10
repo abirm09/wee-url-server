@@ -18,7 +18,7 @@ route.post(
 
 route.get(
   "/profile",
-  rateLimit(5),
+  rateLimit(50, 50),
   authGuard({
     requiredRoles: ["admin", "customer"],
     validateIsEmailVerified: false,
