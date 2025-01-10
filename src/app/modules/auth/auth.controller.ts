@@ -7,7 +7,7 @@ import { AuthService } from "./auth.service";
 const login = catchAsync(async (req: Request, res: Response) => {
   const body = req.body;
   const userAgent = req.headers["user-agent"];
-  const { accessToken, refreshToken } = await AuthService.login(
+  const { accessToken, refreshToken, profile } = await AuthService.login(
     body,
     userAgent,
     req.userIp
@@ -22,7 +22,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
   successResponse(res, {
     statusCode: httpStatus.OK,
     message: "Log in successful",
-    data: { token: accessToken },
+    data: { token: accessToken, profile },
   });
 });
 

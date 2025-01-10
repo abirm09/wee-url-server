@@ -15,7 +15,7 @@ router.post(
 
 router.get(
   "/",
-  authGuard({ requiredRoles: ["admin"] }),
+  // authGuard({ requiredRoles: ["admin"] }),
   SubscriptionPlanController.getAllPlans
 );
 
