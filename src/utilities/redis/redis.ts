@@ -66,7 +66,7 @@ const getUrlCache = async (shortCode: string) => {
 };
 
 const setUrlCache = async (shortCode: string, data: any) => {
-  return await RedisClient.setEx(`url:${shortCode}`, 3600, data);
+  return await RedisClient.setEx(`url:${shortCode}`, 345600, data);
 };
 
 const deleteUrlCache = async (shortCode: string) => {
@@ -82,11 +82,27 @@ const getTagsCache = async (userId: string) => {
 };
 
 const setTagsCache = async (userId: string, data: any) => {
-  return await RedisClient.setEx(`tags:${userId}`, 3600, data);
+  return await RedisClient.setEx(`tags:${userId}`, 345600, data);
 };
 
 const deleteTagsCache = async (userId: string) => {
   return await RedisClient.del(`tags:${userId}`);
+};
+
+/*===============================
+        Profile cache
+==================================*/
+
+const getUserProfileCache = async (userId: string) => {
+  return await RedisClient.get(`userProfile:${userId}`);
+};
+
+const setUserProfileCache = async (userId: string, data: any) => {
+  return await RedisClient.setEx(`userProfile:${userId}`, 604800, data);
+};
+
+const deleteUserProfileCache = async (userId: string) => {
+  return await RedisClient.del(`userProfile:${userId}`);
 };
 
 export const CacheManager = {
@@ -105,4 +121,7 @@ export const CacheManager = {
   getTagsCache,
   setTagsCache,
   deleteTagsCache,
+  getUserProfileCache,
+  setUserProfileCache,
+  deleteUserProfileCache,
 };

@@ -102,24 +102,45 @@ const createIntoDB = async (payload: User) => {
  * profile.
  */
 const profileFromDB = async (id: string) => {
-  const result = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      fullName: true,
-      userId: true,
-      email: true,
-      isEmailVerified: true,
-      needsPasswordChange: true,
-      role: true,
-      status: true,
-      profile: {
-        select: {
-          picture: true,
+  let result = await CacheManager.getUserProfileCache(id);
+
+  if (!result) {
+    result = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        fullName: true,
+        userId: true,
+        email: true,
+        isEmailVerified: true,
+        needsPasswordChange: true,
+        role: true,
+        status: true,
+        subscriptions: {
+          where: {
+            isActive: true,
+          },
+          select: {
+            plan: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+              },
+            },
+          },
+        },
+        profile: {
+          select: {
+            picture: true,
+          },
         },
       },
-    },
-  });
+    });
+
+    if (result) await CacheManager.setUserProfileCache(id, result);
+  }
+
   return result;
 };
 
