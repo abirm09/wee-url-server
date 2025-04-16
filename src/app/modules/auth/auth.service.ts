@@ -113,12 +113,9 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
  */
 const accessToken = async (refreshToken: string, res: Response) => {
   // Verify the refresh token and extract the payload
-  const { tokenId, userId, role } = jwt.verify(
-    refreshToken,
-    env.refresh_token.secret
-  ) as TJWTPayload;
+
   const invalidateCookieAndThrow = async (message: string) => {
-    await CacheManager.deleteDeviceCache(tokenId);
+    // await CacheManager.deleteDeviceCache(tokenId);
     setCookie(res, {
       cookieName: env.cookieNames.accessToken,
       value: "",
@@ -126,6 +123,18 @@ const accessToken = async (refreshToken: string, res: Response) => {
     });
     throw new ApiError(httpStatus.FORBIDDEN, message);
   };
+
+  let payload: TJWTPayload;
+
+  try {
+    payload = jwt.verify(refreshToken, env.refresh_token.secret) as TJWTPayload;
+  } catch (error) {
+    const err = error as Error;
+    return invalidateCookieAndThrow(err.message);
+  }
+
+  const { userId, tokenId, role } = payload;
+
   return prisma.$transaction(async (tx) => {
     // Check if the device information exists for the given tokenId
     const deviceInfo = await tx.loggedInDevice.findUnique({
@@ -280,6 +289,7 @@ const verifyOtpFromDB = async (otp: string, user: TJWTPayload) => {
       },
     });
     await CacheManager.deleteUserCache(user.userId);
+    await CacheManager.deleteUserProfileCache(user.userId);
   });
 };
 

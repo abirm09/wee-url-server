@@ -8,6 +8,7 @@ import { TJWTPayload } from "../../../../types";
 import { ApiError } from "../../../../errorHandlers";
 import { CacheManager, DeleteImageFromCloudinary } from "../../../../utilities";
 import { UserHelper } from "./user.helper";
+import { TSubscriptionInput, TUserCreditInput } from "./user.types";
 
 /**
  * The function `createIntoDB` asynchronously creates a new user in a database with hashed password and
@@ -62,18 +63,24 @@ const createIntoDB = async (payload: User) => {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const subscriptionData: any = {
+    const subscriptionData: TSubscriptionInput = {
       userId: user.id,
       planId: freeSubscriptionPlan.id,
+      reqId: null,
+      isActive: true,
+      isAutoRenew: false,
+      paymentId: null,
+      startedAt: new Date(),
+      expiresAt: null,
     };
+
     await tx.subscription.create({
       data: subscriptionData,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userCreditData: any = {
+    const userCreditData: TUserCreditInput = {
       userId: user.id,
+      balance: 0,
     };
 
     await tx.userCredit.create({
@@ -207,6 +214,7 @@ const updateUserIntoDB = async (
         },
       });
     }
+    await CacheManager.deleteUserProfileCache(userId);
     await CacheManager.deleteUserCache(userId);
   });
 };
