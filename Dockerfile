@@ -16,7 +16,7 @@
 
 
 
-FROM node:22.11.0-alpine AS builder
+FROM node:22.14.0-alpine AS builder
 WORKDIR /app
 COPY . .
 COPY .env .env
@@ -24,7 +24,9 @@ COPY package.json yarn.lock ./
 RUN yarn install
 RUN yarn build
 
-FROM node:22.11.0-alpine
+
+# Stage 2: Runtime
+FROM node:22.14.0-alpine
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/.env ./.env

@@ -67,11 +67,11 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
     };
 
     const refreshToken = jwt.sign(tokenPayload, env.refresh_token.secret, {
-      expiresIn: env.refresh_token.expires_in,
+      expiresIn: parseInt(env.refresh_token.expires_in, 10),
     });
 
     const accessToken = jwt.sign(tokenPayload, env.access_token.secret, {
-      expiresIn: env.access_token.expires_in,
+      expiresIn: parseInt(env.access_token.expires_in, 10),
     });
 
     const ipInFo = await IPInfo(userIp);
@@ -150,7 +150,7 @@ const accessToken = async (refreshToken: string, res: Response) => {
     // Generate a new access token
     await CacheManager.deleteUserCache(userId);
     return jwt.sign({ userId, role, tokenId }, env.access_token.secret, {
-      expiresIn: env.access_token.expires_in,
+      expiresIn: parseInt(env.access_token.expires_in, 10),
     });
   });
 };
