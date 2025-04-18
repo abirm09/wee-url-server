@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
 }
 
 datasource db {
@@ -332,6 +333,23 @@ model Url {
   @@map("urls")
 }
 
+enum AccessedDeviceType {
+  desktop               @map("desktop")
+  smartphone            @map("smartphone")
+  tablet                @map("tablet")
+  television            @map("television")
+  smart_display         @map("smart display")
+  camera                @map("camera")
+  car                   @map("car")
+  console               @map("console")
+  portable_media_player @map("portable media player")
+  phablet               @map("phablet")
+  wearable              @map("wearable")
+  smart_speaker         @map("smart speaker")
+  feature_phone         @map("feature phone")
+  peripheral            @map("peripheral")
+}
+
 model UrlMetrics {
   id String @id @default(uuid())
 
@@ -339,13 +357,13 @@ model UrlMetrics {
   accessedFromIp      String?
   accessedFromCity    String?
   accessedFromCountry String?
-  accessedOn          DateTime @default(now()) //Also work as the createdAt
+  accessedOn          DateTime            @default(now()) //Also work as the createdAt
   userAgent           String?
-  accessedDeviceType  String?
-  isBot               Boolean  @default(false)
+  accessedDeviceType  AccessedDeviceType? @default(desktop)
+  isBot               Boolean             @default(false)
   // relations
-  url                 Url?     @relation(fields: [urlId], references: [id])
-  createdAt           DateTime @default(now())
+  url                 Url?                @relation(fields: [urlId], references: [id])
+  createdAt           DateTime            @default(now())
 
   @@index([urlId, accessedOn])
   @@map("url_metrics")

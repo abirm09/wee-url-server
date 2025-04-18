@@ -10,3 +10,10 @@ export type TUrlMetricFilterableField = {
   accessedOnTo?: string;
   accessedDeviceType?: string;
 };
+
+export type TUrlClickCountFilterableFields = {
+  from?: string;
+  to?: string;
+  accessedDeviceType?: string;
+  accessedFromCountry?: string;
+};

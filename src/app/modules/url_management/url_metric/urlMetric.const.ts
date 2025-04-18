@@ -4,6 +4,14 @@ const urlMetricFilterableField = [
   "accessedDeviceType",
 ];
 
+const urlClickCountFilterableField = [
+  "from",
+  "to",
+  "accessedDeviceType",
+  "accessedFromCountry",
+];
+
 export const UrlMetricConst = {
   urlMetricFilterableField,
+  urlClickCountFilterableField,
 };

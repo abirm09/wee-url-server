@@ -5,7 +5,13 @@ import { UrlMetricController } from "./urlMetric.controller";
 const router = Router();
 
 router.get(
-  "/:id",
+  "/customer/click-count/:id",
+  authGuard({ requiredRoles: ["customer"] }),
+  UrlMetricController.getUrlClicksCountCustomers
+);
+
+router.get(
+  "/customer/:id",
   authGuard({ requiredRoles: ["customer"] }),
   UrlMetricController.get
 );

@@ -4,7 +4,10 @@ import { prisma } from "../../../../app";
 import { ApiError } from "../../../../errorHandlers";
 import { TJWTPayload, TPaginationOption } from "../../../../types";
 import { CacheManager, Pagination } from "../../../../utilities";
-import { TUrlMetricFilterableField } from "./urlMetric.types";
+import {
+  TUrlClickCountFilterableFields,
+  TUrlMetricFilterableField,
+} from "./urlMetric.types";
 
 const getFromDB = async (
   user: TJWTPayload,
@@ -130,6 +133,60 @@ const getFromDB = async (
   });
 };
 
+const getUrlClicksCountCustomersFromDB = async (
+  user: TJWTPayload,
+  urlId: string,
+  filters: TUrlClickCountFilterableFields
+) => {
+  const isValidUser = await prisma.url.findUnique({
+    where: { id: urlId, userId: user.userId },
+  });
+
+  if (!isValidUser) throw new ApiError(httpStatus.BAD_REQUEST, "Url not found");
+
+  const andCondition: Record<string, unknown>[] = [
+    {
+      urlId,
+    },
+  ];
+
+  if (filters?.accessedDeviceType) {
+    andCondition.push({ accessedDeviceType: filters?.accessedDeviceType });
+  }
+
+  if (filters?.accessedFromCountry) {
+    andCondition.push({ accessedFromCountry: filters?.accessedFromCountry });
+  }
+
+  if (filters?.from && filters?.to) {
+    andCondition.push({
+      createdAt: {
+        gte: new Date(filters.from),
+        lte: new Date(filters.to),
+      },
+    });
+  } else if (filters?.from) {
+    andCondition.push({
+      createdAt: {
+        gte: new Date(filters.from),
+      },
+    });
+  } else if (filters?.to) {
+    andCondition.push({
+      createdAt: {
+        lte: new Date(filters.to),
+      },
+    });
+  }
+
+  const result = await prisma.urlMetrics.count({
+    where: { AND: andCondition },
+  });
+
+  return { count: result };
+};
+
 export const UrlMetricService = {
   getFromDB,
+  getUrlClicksCountCustomersFromDB,
 };

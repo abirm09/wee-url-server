@@ -23,6 +23,26 @@ const get = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUrlClicksCountCustomers = catchAsync(
+  async (req: Request, res: Response) => {
+    const filters = Pick(
+      req.query,
+      UrlMetricConst.urlClickCountFilterableField
+    );
+    const data = await UrlMetricService.getUrlClicksCountCustomersFromDB(
+      req.user,
+      req.params.id,
+      filters
+    );
+    successResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Url click count retrieved successfully!",
+      data,
+    });
+  }
+);
+
 export const UrlMetricController = {
   get,
+  getUrlClicksCountCustomers,
 };
