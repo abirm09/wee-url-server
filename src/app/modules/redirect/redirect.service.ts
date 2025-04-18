@@ -1,8 +1,9 @@
-import { SubscriptionPlan } from "@prisma/client";
+import { AccessedDeviceType, SubscriptionPlan } from "@prisma/client";
 import crypto from "crypto";
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../../app";
 import { env } from "../../../config";
+import { deviceTypeMap } from "../../../const";
 import { TIpInFo } from "../../../types";
 import { CacheManager, IPInfo, UserAgentParser } from "../../../utilities";
 import { TUrlMetricInput } from "../url_management/url_metric/urlMetric.types";
@@ -69,12 +70,18 @@ const redirect = async (req: Request, res: Response, next: NextFunction) => {
         ipData = await IPInfo(req.userIp);
       }
       const userAgent = UserAgentParser(req.headers["user-agent"]);
+
+      const rawDeviceType = userAgent?.device?.type;
+      const mappedDeviceType: AccessedDeviceType | null = rawDeviceType
+        ? (deviceTypeMap[rawDeviceType] ?? null)
+        : null;
+
       const urlMetric: TUrlMetricInput = {
         urlId: url.id,
         accessedFromIp: req.userIp || null,
         accessedFromCity: ipData?.city || null,
         accessedFromCountry: ipData?.city || null,
-        accessedDeviceType: userAgent?.device?.type || null,
+        accessedDeviceType: mappedDeviceType,
         userAgent: req.headers["user-agent"] || null,
         isBot: !!userAgent?.bot,
       };
