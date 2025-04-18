@@ -2,14 +2,18 @@ import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { PaginationConst } from "../../../../const";
 import { catchAsync, Pick, successResponse } from "../../../../shared";
+import { UrlMetricConst } from "./urlMetric.const";
 import { UrlMetricService } from "./urlMetric.service";
 
 const get = catchAsync(async (req: Request, res: Response) => {
   const options = Pick(req.query, PaginationConst.queryKeys);
+  const filters = Pick(req.query, UrlMetricConst.urlMetricFilterableField);
+
   const { meta, data } = await UrlMetricService.getFromDB(
     req.user,
     req.params.id,
-    options
+    options,
+    filters
   );
   successResponse(res, {
     statusCode: httpStatus.OK,

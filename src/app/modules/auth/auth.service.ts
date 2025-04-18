@@ -83,7 +83,9 @@ const login = async (payload: User, userAgent?: string, userIp?: string) => {
       userAgent: userAgent || null,
       city: ipInFo?.city || null,
       country: ipInFo?.country || null,
-      expiresAt: getDateCustomDaysFromNow(env.refresh_token.expires_in),
+      expiresAt: getDateCustomDaysFromNow(
+        parseInt(env.refresh_token.expires_in, 10)
+      ),
       isBlocked: false,
       lastUsedAt: new Date(),
       blockedAt: null,
