@@ -215,7 +215,7 @@ route.get(
 /**
  * @swagger
  * /api/v1/auth/email-verify-request:
- *   get:
+ *   post:
  *     summary: Email verify request
  *     description: Send email verify request
  *     tags:
