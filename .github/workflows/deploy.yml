@@ -26,5 +26,6 @@ jobs:
             cd ~/applications/WeeURL/wee-url-server
             git pull origin production
             yarn
+            yarn build
             pm2 restart all
           EOF
