@@ -22,7 +22,7 @@ jobs:
 
       - name: Deploy app to EC2
         run: |
-          ssh ec2-user@43.204.116.131 << 'EOF'
+          ssh -i ~/.ssh/id_rsa ec2-user@43.204.116.131 << 'EOF'
             cd ~/applications/WeeURL/wee-url-server
             git pull origin production
             npm install yarn@latest -g
