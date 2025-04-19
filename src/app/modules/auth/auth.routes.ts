@@ -178,7 +178,7 @@ route.post(
  *                         type: string
  *                         example: token.example
  *       400:
- *         description: Same structure for every error
+ *         description: This template is generic for any error
  *         content:
  *           application/json:
  *             schema:
@@ -189,7 +189,7 @@ route.post(
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Same structure for every error
+ *                   example: Error message
  *                 errorMessages:
  *                   type: array
  *                   items:
@@ -197,10 +197,10 @@ route.post(
  *                     properties:
  *                       path:
  *                         type: string
- *                         example: ""
+ *                         example: Path name here
  *                       message:
  *                         type: string
- *                         example: Same structure for every error
+ *                         example: Specific path error message
  *                 stack:
  *                   type: string
  *                   example: Error same structure for every error match\n as path/to/file.ts
@@ -238,7 +238,7 @@ route.get(
  *                   type: string
  *                   example: Email verification email sended successfully
  *       400:
- *         description: Same structure for every error
+ *         description: This template is generic for any error
  *         content:
  *           application/json:
  *             schema:
@@ -249,7 +249,7 @@ route.get(
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Same structure for every error
+ *                   example: Error message
  *                 errorMessages:
  *                   type: array
  *                   items:
@@ -257,10 +257,10 @@ route.get(
  *                     properties:
  *                       path:
  *                         type: string
- *                         example: ""
+ *                         example: Path name here
  *                       message:
  *                         type: string
- *                         example: Same structure for every error
+ *                         example: Specific path error message
  *                 stack:
  *                   type: string
  *                   example: Error same structure for every error match\n as path/to/file.ts
@@ -301,7 +301,7 @@ route.post(
  *                   type: string
  *                   example: Email verification successful
  *       400:
- *         description: Same structure for every error
+ *         description: This template is generic for any error
  *         content:
  *           application/json:
  *             schema:
@@ -312,7 +312,7 @@ route.post(
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Same structure for every error
+ *                   example: Error message
  *                 errorMessages:
  *                   type: array
  *                   items:
@@ -320,10 +320,10 @@ route.post(
  *                     properties:
  *                       path:
  *                         type: string
- *                         example: ""
+ *                         example: Path name here
  *                       message:
  *                         type: string
- *                         example: Same structure for every error
+ *                         example: Specific path error message
  *                 stack:
  *                   type: string
  *                   example: Error same structure for every error match\n as path/to/file.ts
@@ -364,7 +364,7 @@ route.post(
  *                   type: string
  *                   example: Logout successfully
  *       400:
- *         description: Same structure for every error
+ *         description: This template is generic for any error
  *         content:
  *           application/json:
  *             schema:
@@ -375,7 +375,7 @@ route.post(
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Same structure for every error
+ *                   example: Error message
  *                 errorMessages:
  *                   type: array
  *                   items:
@@ -383,10 +383,10 @@ route.post(
  *                     properties:
  *                       path:
  *                         type: string
- *                         example: ""
+ *                         example: Path name here
  *                       message:
  *                         type: string
- *                         example: Same structure for every error
+ *                         example: Specific path error message
  *                 stack:
  *                   type: string
  *                   example: Error same structure for every error match\n as path/to/file.ts
