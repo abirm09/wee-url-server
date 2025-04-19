@@ -16,6 +16,10 @@ const envVarsZodSchema = z.object({
     (val) => JSON.parse(val as string),
     z.array(z.string())
   ),
+  SERVER_URLS: z.preprocess(
+    (val) => JSON.parse(val as string),
+    z.array(z.string())
+  ),
   REFRESH_TOKEN_SECRET: z.string({
     required_error: "REFRESH_TOKEN_SECRET is required",
   }),
@@ -94,6 +98,7 @@ export const env = {
   env: envVars.NODE_ENV,
   port: parseInt(envVars.PORT),
   client_side_urls: envVars.CLIENT_SIDE_URLS,
+  server_urls: envVars.SERVER_URLS,
   client_side_domain: envVars.CLIENT_SIDE_DOMAIN,
   refresh_token: {
     secret: envVars.REFRESH_TOKEN_SECRET,
