@@ -13,7 +13,7 @@ const router = Router();
  *     summary: Create new url
  *     description: Create url by customers
  *     tags:
- *       - url
+ *       - URL
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -111,7 +111,7 @@ router.post(
  *     summary: Get all urls by customer
  *     description: Get all url by the customers.
  *     tags:
- *       - url
+ *       - URL
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -223,7 +223,7 @@ router.get(
  *     summary: Get all tags by customer
  *     description: Get all unique tags by the customers.
  *     tags:
- *       - url
+ *       - URL
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -299,7 +299,7 @@ router.get(
  *     summary: Get single urls by customer
  *     description: Get single url by the customers.
  *     tags:
- *       - url
+ *       - URL
  *     parameters:
  *       - in: header
  *         name: Authorization
