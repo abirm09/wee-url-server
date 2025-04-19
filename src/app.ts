@@ -6,12 +6,14 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
+import swaggerUi from "swagger-ui-express";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { notFoundHandler } from "./app/middlewares/notFoundHandler";
 import userIp from "./app/middlewares/userIp";
 import { RedirectController } from "./app/modules/redirect/redirect.controller";
 import router from "./app/routes";
 import { env } from "./config";
+import { specs } from "./swagger";
 import { WebhookRoutes } from "./web_hooks/routes";
 
 // Create an instance of PrismaClient
@@ -74,6 +76,9 @@ export const createApp = (): Application => {
 
   // API routes
   app.use("/api/v1", router);
+
+  // API dock
+  app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
   // Global error handler
   app.use(globalErrorHandler);
