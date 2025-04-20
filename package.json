@@ -37,6 +37,8 @@
     "@types/otp-generator": "^4.0.2",
     "@types/request-ip": "^0.0.41",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.24.0",
@@ -56,8 +58,6 @@
   },
   "dependencies": {
     "@prisma/client": "6.6.0",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.8",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
     "compression": "^1.8.0",
