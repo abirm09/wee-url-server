@@ -2,25 +2,25 @@
 
 ## 📚 Table of contents
 
-- 📌 [Overview](#📌-overview)
-- 🔗 [Quick links](#🔗-quick-links)
-- 🛠️ [Tech stack](#🛠️-tech-stack)
-- ✨ [Key features](#✨-key-features)
-- 🚀 [Getting Started](#🚀-getting-started)
-  - ✅ [Prerequisites](#✅-prerequisites)
-  - 📦 [Installation](#📦-installation)
-  - 🔐 [Environment Variables](#🔐-environment-variables)
-  - 🏃 [Running the App](#🏃-running-the-app)
-- 📡 [API Reference](#📡-api-reference)
+- 📌 [Overview](#overview)
+- 🔗 [Quick links](#quick-links)
+- 🛠️ [Tech stack](#tech-stack)
+- ✨ [Key features](#key-features)
+- 🚀 [Getting Started](#getting-started)
+  - ✅ [Prerequisites](#prerequisites)
+  - 📦 [Installation](#installation)
+  - 🔐 [Environment Variables](#environment-variables)
+  - 🏃 [Running the App](#running-the-app)
+- 📡 [API Reference](#api-reference)
 - 🤝 [Contributing](#contributing)
 
-## 📌 Overview
+## Overview
 
 WeeURL server is a secure, fast, scalable, and production-ready server for an advanced URL-shortening web app. Built with modern technology, it provides smart server-side caching, ensures high availability during peak usage, and enables cost-effective deployments.
 
 [Back to top](#welcome-to-weeurl-link-shortener-web-app)
 
-## 🔗 Quick links
+## Quick links
 
 - [Client side app](https://weeurl.abirmahmud.top)
 - [Client side GitHub repo](https://github.com/abirm09/wee-url-client)
@@ -30,7 +30,7 @@ WeeURL server is a secure, fast, scalable, and production-ready server for an ad
 
 [Back to top](#welcome-to-weeurl-link-shortener-web-app)
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **🚀 Runtime & Server**
 
@@ -94,7 +94,7 @@ WeeURL server is a secure, fast, scalable, and production-ready server for an ad
 
 [Back to top](#welcome-to-weeurl-link-shortener-web-app)
 
-## ✨ Key features
+## Key features
 
 - 🔗 **Instant URL Shortening** – Convert long URLs into short, shareable links in seconds.
 - 📈 **Click Analytics** – Track total clicks, geolocation, and device info.
@@ -108,9 +108,10 @@ WeeURL server is a secure, fast, scalable, and production-ready server for an ad
 
 [Back to top](#welcome-to-weeurl-link-shortener-web-app)
 
-## 🚀 Getting Started
+## Getting Started
 
-- ## ✅ Prerequisites
+- ## Prerequisites
+
   - NodeJS v18 or later
   - yarn instal
   - PostgresSQL DB connection
@@ -119,47 +120,48 @@ WeeURL server is a secure, fast, scalable, and production-ready server for an ad
   - Cloudinary account and credentials
   - Stripe credentials
   - IP info token
-- 📦 Installation
+
+- ## Installation
 
   Clone the project:
 
   ```bash
-      git clone https://github.com/abirm09/wee-url-server.git
+  git clone https://github.com/abirm09/wee-url-server.git
   ```
 
   Install dependencies:
 
   ```bash
-      yarn
+  yarn
   ```
 
-- ## 🔐 Environment Variables
+- ## Environment Variables
 
   Install dependencies:
 
   ```bash
-      cp .env.example .env
-      # Copy .env.example to .env and configure the environment variables.
-      # Follow further instructions mentioned on .env.example file. Add all variables properly.
+  cp .env.example .env
+  # Copy .env.example to .env and configure the environment variables.
+  # Follow further instructions mentioned on .env.example file. Add all variables properly.
   ```
 
-- ## 🏃 Running the App
+- ## Running the App
 
   Seed super admin:
 
   ```bash
-      yarn seed
+  yarn seed
   ```
 
   Start server:
 
   ```bash
-      yarn dev
+  yarn dev
   ```
 
 [Back to top](#welcome-to-weeurl-link-shortener-web-app)
 
-## 📡 API Reference
+## API Reference
 
 To get api docs please visit link below.
 
@@ -167,7 +169,7 @@ To get api docs please visit link below.
 
 [Back to top](#welcome-to-weeurl-link-shortener-web-app)
 
-## 🤝 Contributing
+## Contributing
 
 - [MD Abir Mahmud](https://www.linkedin.com/in/abirm09/)
 
