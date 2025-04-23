@@ -2,6 +2,7 @@ import { BillingPeriod, BillingType, SubscriptionPlan } from "@prisma/client";
 import httpStatus from "http-status";
 import { prisma } from "../../../app";
 import { ApiError } from "../../../errorHandlers";
+import { CacheManager } from "../../../utilities";
 
 const createIntoDB = async (
   subscriptionData: SubscriptionPlan,
@@ -48,40 +49,47 @@ const createIntoDB = async (
 };
 
 const getAllFromDB = async () => {
-  const result = await prisma.subscriptionPlan.findMany({
-    select: {
-      id: true,
-      name: true,
-      type: true,
-      description: true,
-      maxURLsAllowed: true,
-      customURLSlug: true,
-      APIAccess: true,
-      bulkURLShortening: true,
-      customURLRedirectRules: true,
-      canSetExpiration: true,
-      allowURLEditing: true,
-      showAds: true,
-      QRCode: true,
-      customDomainAllowed: true,
-      analyticsAccess: true,
-      prioritySupport: true,
-      brandingCustomization: true,
-      geoTargetingEnabled: true,
-      linkRotation: true,
-      isPublic: true,
-      isActive: true,
-      billingPeriods: {
-        select: {
-          id: true,
-          periodType: true,
-          price: true,
+  let result = await CacheManager.getAllSubscriptionPlanCache();
+  if (!result) {
+    result = await prisma.subscriptionPlan.findMany({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        description: true,
+        maxURLsAllowed: true,
+        customURLSlug: true,
+        APIAccess: true,
+        bulkURLShortening: true,
+        customURLRedirectRules: true,
+        canSetExpiration: true,
+        allowURLEditing: true,
+        showAds: true,
+        QRCode: true,
+        customDomainAllowed: true,
+        analyticsAccess: true,
+        prioritySupport: true,
+        brandingCustomization: true,
+        geoTargetingEnabled: true,
+        linkRotation: true,
+        isPublic: true,
+        isActive: true,
+        billingPeriods: {
+          select: {
+            id: true,
+            periodType: true,
+            price: true,
+          },
         },
+        createdAt: true,
+        updatedAt: true,
       },
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (result) await CacheManager.setAllSubscriptionPlanCache(result);
+  }
+
   return result;
 };
 

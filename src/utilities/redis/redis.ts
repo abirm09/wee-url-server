@@ -58,6 +58,22 @@ const deleteSubscriptionPlanCache = async (
 };
 
 /*===============================
+    All Subscription plan cache
+==================================*/
+
+const getAllSubscriptionPlanCache = async () => {
+  return await RedisClient.get(`allSubscriptionPlan`);
+};
+
+const setAllSubscriptionPlanCache = async (data: any) => {
+  return await RedisClient.setEx(`allSubscriptionPlan`, 864000, data);
+};
+
+const deleteAllSubscriptionPlanCache = async () => {
+  return await RedisClient.del(`allSubscriptionPlan`);
+};
+
+/*===============================
           URL cache
 ==================================*/
 
@@ -124,4 +140,7 @@ export const CacheManager = {
   getUserProfileCache,
   setUserProfileCache,
   deleteUserProfileCache,
+  getAllSubscriptionPlanCache,
+  setAllSubscriptionPlanCache,
+  deleteAllSubscriptionPlanCache,
 };
