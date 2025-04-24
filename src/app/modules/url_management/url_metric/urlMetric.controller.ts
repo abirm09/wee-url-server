@@ -42,7 +42,20 @@ const getUrlClicksCountCustomers = catchAsync(
   }
 );
 
+const getUrlClicksStat = catchAsync(async (req: Request, res: Response) => {
+  const data = await UrlMetricService.getUrlClicksStatFromDB(
+    req.user,
+    req.params.id
+  );
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Url click stat retrieved successfully!",
+    data,
+  });
+});
+
 export const UrlMetricController = {
   get,
   getUrlClicksCountCustomers,
+  getUrlClicksStat,
 };

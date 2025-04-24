@@ -186,7 +186,48 @@ const getUrlClicksCountCustomersFromDB = async (
   return { count: result };
 };
 
+const getUrlClicksStatFromDB = async (user: TJWTPayload, urlId: string) => {
+  const today = new Date();
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const [todayCount, monthCount, totalCount] = await prisma.$transaction([
+    prisma.urlMetrics.count({
+      where: {
+        url: { userId: user.userId, id: urlId },
+        accessedOn: {
+          gte: startOfToday,
+        },
+      },
+    }),
+    prisma.urlMetrics.count({
+      where: {
+        url: { userId: user.userId, id: urlId },
+        accessedOn: {
+          gte: startOfMonth,
+        },
+      },
+    }),
+    prisma.urlMetrics.count({
+      where: {
+        url: { userId: user.userId, id: urlId },
+      },
+    }),
+  ]);
+
+  return {
+    today: todayCount,
+    thisMonth: monthCount,
+    total: totalCount,
+  };
+};
+
 export const UrlMetricService = {
   getFromDB,
   getUrlClicksCountCustomersFromDB,
+  getUrlClicksStatFromDB,
 };
