@@ -11,5 +11,6 @@
     "typescript",
     "typescriptreact"
   ],
-  "cSpell.words": ["asign", "CLOUDINARY", "TJWT"]
+  "cSpell.words": ["asign", "CLOUDINARY", "TJWT"],
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

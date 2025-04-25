@@ -4,6 +4,7 @@ import { PaginationConst } from "../../../../const";
 import { catchAsync, Pick, successResponse } from "../../../../shared";
 import { UrlMetricConst } from "./urlMetric.const";
 import { UrlMetricService } from "./urlMetric.service";
+import { TUrlMetricBreakdownQuery } from "./urlMetric.types";
 
 const get = catchAsync(async (req: Request, res: Response) => {
   const options = Pick(req.query, PaginationConst.queryKeys);
@@ -42,7 +43,36 @@ const getUrlClicksCountCustomers = catchAsync(
   }
 );
 
+const getUrlClicksStat = catchAsync(async (req: Request, res: Response) => {
+  const data = await UrlMetricService.getUrlClicksStatFromDB(
+    req.user,
+    req.params.id
+  );
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Url click stat retrieved successfully!",
+    data,
+  });
+});
+
+const getUrlStatsBreakdown = catchAsync(async (req: Request, res: Response) => {
+  const filters = Pick(req.query, UrlMetricConst.urlMetricBreakdownQuery);
+
+  const data = await UrlMetricService.getUrlStatsBreakdownFromDB(
+    req.user,
+    req.params.id,
+    filters as unknown as TUrlMetricBreakdownQuery
+  );
+  successResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Url click breakdown retrieved successfully!",
+    data,
+  });
+});
+
 export const UrlMetricController = {
   get,
   getUrlClicksCountCustomers,
+  getUrlClicksStat,
+  getUrlStatsBreakdown,
 };

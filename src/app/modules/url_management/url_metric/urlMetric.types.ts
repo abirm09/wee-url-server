@@ -17,3 +17,9 @@ export type TUrlClickCountFilterableFields = {
   accessedDeviceType?: string;
   accessedFromCountry?: string;
 };
+
+export type TUrlMetricBreakdownQuery = {
+  filterType: "daily" | "monthly";
+  startDate?: string;
+  endDate?: string;
+};
