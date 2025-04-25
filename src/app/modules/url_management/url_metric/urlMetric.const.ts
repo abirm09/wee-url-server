@@ -11,7 +11,10 @@ const urlClickCountFilterableField = [
   "accessedFromCountry",
 ];
 
+const urlMetricBreakdownQuery = ["filterType", "startDate", "endDate"];
+
 export const UrlMetricConst = {
   urlMetricFilterableField,
   urlClickCountFilterableField,
+  urlMetricBreakdownQuery,
 };

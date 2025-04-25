@@ -1,6 +1,8 @@
 import { Router } from "express";
 import authGuard from "../../../middlewares/authGuard";
+import validateRequest from "../../../middlewares/validateRequest";
 import { UrlMetricController } from "./urlMetric.controller";
+import { UrlMetricValidation } from "./urlMetric.validate";
 
 const router = Router();
 
@@ -232,6 +234,93 @@ router.get(
   "/customer/stat/:id",
   authGuard({ requiredRoles: ["customer"] }),
   UrlMetricController.getUrlClicksStat
+);
+
+/**
+ * @swagger
+ * /api/v1/url-metric/customer/stat/breakdown/:id:
+ *   get:
+ *     summary: Get url count stat breakdown
+ *     description: Get url count stat breakdown
+ *     tags:
+ *       - URL metrics
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Access token on authorization header
+ *         example: Bearer jwt.token
+ *       - in: path
+ *         name: url id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the customer
+ *     responses:
+ *       200:
+ *         description: Successful tags retrieval
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Url click count retrieved successfully!
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                      type: object
+ *                      properties:
+ *                          count:
+ *                            type: number
+ *                            example: 5
+ *                          date:
+ *                             type: string
+ *                             example: 2025-04-01T00:00:00.000Z
+ *
+ *
+ *       400:
+ *         description: This template is generic for any error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Error message
+ *                 errorMessages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       path:
+ *                         type: string
+ *                         example: Path name here
+ *                       message:
+ *                         type: string
+ *                         example: Specific path error message
+ *                 stack:
+ *                   type: string
+ *                   example: Error same structure for every error match\n as path/to/file.ts
+ */
+router.get(
+  "/customer/stat/breakdown/:id",
+  authGuard({ requiredRoles: ["customer"] }),
+  validateRequest(UrlMetricValidation.statBreakdown),
+  UrlMetricController.getUrlStatsBreakdown
 );
 
 /**

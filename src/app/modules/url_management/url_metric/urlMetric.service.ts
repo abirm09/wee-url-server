@@ -6,6 +6,7 @@ import { TJWTPayload, TPaginationOption } from "../../../../types";
 import { CacheManager, Pagination } from "../../../../utilities";
 import {
   TUrlClickCountFilterableFields,
+  TUrlMetricBreakdownQuery,
   TUrlMetricFilterableField,
 } from "./urlMetric.types";
 
@@ -226,8 +227,53 @@ const getUrlClicksStatFromDB = async (user: TJWTPayload, urlId: string) => {
   };
 };
 
+const getUrlStatsBreakdownFromDB = async (
+  user: TJWTPayload,
+  urlId: string,
+  filter: TUrlMetricBreakdownQuery
+) => {
+  const { filterType, endDate, startDate } = filter || {};
+
+  const startDateUtc = startDate ? new Date(startDate) : new Date(0);
+
+  const today = new Date();
+  const endDateUtc = endDate
+    ? new Date(endDate)
+    : new Date(today.setHours(23, 59, 59, 999));
+
+  let results;
+
+  if (filterType === "daily") {
+    results = await prisma.$queryRaw<{ count: number; date: Date }[]>`SELECT
+      COUNT(*) AS count,
+      DATE_TRUNC('day', "accessedOn") AS date
+    FROM "url_metrics"
+    WHERE "urlId" = ${urlId}
+      AND "accessedOn" BETWEEN ${startDateUtc} AND ${endDateUtc}
+    GROUP BY DATE_TRUNC('day', "accessedOn")
+    ORDER BY date DESC;`;
+  } else if (filterType === "monthly") {
+    results = await prisma.$queryRaw<{ count: number; date: Date }[]>`SELECT
+      COUNT(*) AS count,
+      DATE_TRUNC('month', "accessedOn") AS date
+    FROM "url_metrics"
+    WHERE "urlId" = ${urlId}
+      AND "accessedOn" BETWEEN ${startDateUtc} AND ${endDateUtc}
+    GROUP BY DATE_TRUNC('month', "accessedOn")
+    ORDER BY date DESC;`;
+  }
+
+  const sorted = results?.map((item) => ({
+    count: Number(item.count),
+    date: item.date,
+  }));
+
+  return sorted;
+};
+
 export const UrlMetricService = {
   getFromDB,
   getUrlClicksCountCustomersFromDB,
   getUrlClicksStatFromDB,
+  getUrlStatsBreakdownFromDB,
 };
